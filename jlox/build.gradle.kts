@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.9.10"
     application
 }
 
@@ -14,16 +14,19 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "1.8"
+kotlin { // Extension for easy setup
+    jvmToolchain(20) // Target version of generated JVM bytecode. See 7️⃣
 }
 
 application {
-    mainClassName = "MainKt"
+    mainClass.set("MainKt") // The main class of the application
 }
+
