@@ -24,7 +24,7 @@
       with pkgs;
       {
         devShells.default = mkShell {
-            buildInputs = [ kotlin jdk ];
+          buildInputs = [ kotlin jdk ];
         };
       }
     );
