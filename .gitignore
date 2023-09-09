@@ -16,3 +16,5 @@ gradle-app.setting
 .direnv
 bin
 .vscode
+.devenv
+.lib

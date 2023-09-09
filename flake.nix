@@ -1,10 +1,13 @@
 {
   description = "Dev environment for crafting compilers";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    devenv.url = "github:cachix/devenv";
+  };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, devenv, ... } @ inputs:
     flake-utils.lib.eachDefaultSystem (system:
       let
         javaVersion = 20;
@@ -23,8 +26,19 @@
       in
       with pkgs;
       {
-        devShells.default = mkShell {
-          buildInputs = [ kotlin jdk ];
+        devShells.default = devenv.lib.mkShell {
+          inherit pkgs inputs;
+          modules = [
+            ({pkgs, ...}: { 
+              env.FOO = ./.;
+              packages = [ kotlin jdk coreutils ];
+                enterShell = ''
+                  rm -rf $DEVENV_ROOT/.lib
+                  mkdir -p $DEVENV_ROOT/.lib
+                  ln -sf ${jdk}/lib/openjdk/ $DEVENV_ROOT/.lib/jdk
+                ''; 
+            })
+          ];
         };
       }
     );
