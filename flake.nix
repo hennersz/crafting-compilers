@@ -29,8 +29,8 @@
         devShells.default = devenv.lib.mkShell {
           inherit pkgs inputs;
           modules = [
-            ({pkgs, ...}: { 
-              env.FOO = ./.;
+            ({pkgs, ...}: {
+              env.JAVA_HOME = "${jdk}/lib/openjdk";
               packages = [ kotlin jdk coreutils ];
                 enterShell = ''
                   rm -rf $DEVENV_ROOT/.lib

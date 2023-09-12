@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.9.10"
     application
+    jacoco
 }
 
 group = "net.morti"
@@ -15,11 +16,22 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+    reports {
+        xml.required.set(false)
+        csv.required.set(false)
+        html.required.set(true)
+    }
 }
 
 kotlin { // Extension for easy setup
