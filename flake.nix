@@ -10,7 +10,7 @@
   outputs = { self, nixpkgs, flake-utils, devenv, ... } @ inputs:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        javaVersion = 20;
+        javaVersion = 17;
 
         overlays = [
           (final: prev: rec {
