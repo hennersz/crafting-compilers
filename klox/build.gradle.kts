@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm") version "1.9.10"
     application
@@ -13,11 +11,23 @@ repositories {
     mavenCentral()
 }
 
+sourceSets.main {
+    java.srcDir("build/generated/src/kotlin")
+}
+
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.register<Generate>("generate") {
+    outputDir.set(layout.buildDirectory.dir("generated/src/kotlin"))
+}
+
+tasks.compileKotlin {
+    dependsOn(tasks.getByName("generate"))
 }
 
 tasks.test {
@@ -41,4 +51,3 @@ kotlin { // Extension for easy setup
 application {
     mainClass.set("MainKt") // The main class of the application
 }
-
