@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 import com.github.stefanbirkner.systemlambda.SystemLambda.*
 import java.io.File
 
-internal class LoxTest {
+class LoxTest {
 
     @Test
     fun noArgs() {
