@@ -40,6 +40,11 @@
             })
           ];
         };
+
+        packages = rec { 
+          klox = import ./klox.nix { inherit pkgs; };
+          default = klox;
+        };
       }
     );
 }
