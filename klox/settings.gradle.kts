@@ -1,3 +1,2 @@
-
-rootProject.name = "crafting-compilers"
+rootProject.name = "klox"
 
