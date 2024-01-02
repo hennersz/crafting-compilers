@@ -22,7 +22,7 @@ class ScannerTest {
 
     @Test
     fun testBasicTokens() {
-        val (tokens, errors) = Scanner("(){},.-+*!=! == = <= < >= >\t\r").scanTokens()
+        val (tokens, errors) = Scanner("(){},.-+*!=! == = <= < >= > / \t\r").scanTokens()
         assertEquals(0, errors.size)
         assertContentEquals(
             arrayListOf(
@@ -43,6 +43,7 @@ class ScannerTest {
                 Token(TokenType.LESS, "<", null, 1),
                 Token(TokenType.GREATER_EQUAL, ">=", null, 1),
                 Token(TokenType.GREATER, ">", null, 1),
+                Token(TokenType.SLASH, "/", null, 1),
                 Token(TokenType.EOF, "", null, 1),
             ),
             tokens
@@ -198,6 +199,25 @@ class ScannerTest {
                 Token(TokenType.NUMBER, "1.23", 1.23, 1),
                 Token(TokenType.SEMICOLON, ";", null, 1),
                 Token(TokenType.EOF, "", null, 1),
+            ),
+            tokens
+        )
+    }
+
+    @Test
+    fun testLineComment() {
+        val (tokens, errors) = Scanner("""
+            // this is a comment
+            var test;
+            //
+        """.trimIndent()).scanTokens()
+        assertEquals(0, errors.size)
+        assertContentEquals(
+            arrayListOf(
+                Token(TokenType.VAR, "var", null, 2),
+                Token(TokenType.IDENTIFIER, "test", null, 2),
+                Token(TokenType.SEMICOLON, ";", null, 2),
+                Token(TokenType.EOF, "", null, 3),
             ),
             tokens
         )
