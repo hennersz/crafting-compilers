@@ -1,6 +1,6 @@
 package net.morti.klox.lox
 
-import net.morti.klox.parser.Expr
+import net.morti.generated.klox.parser.Expr
 
 class AstPrinter: Expr.Visitor<String>{
     fun print(expr: Expr): String {

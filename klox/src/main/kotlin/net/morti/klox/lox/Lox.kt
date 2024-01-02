@@ -1,6 +1,10 @@
 package net.morti.klox.lox
 
+import net.morti.generated.klox.parser.Expr
+import net.morti.klox.parser.Parser
 import net.morti.klox.scanner.Scanner
+import net.morti.klox.scanner.Token
+import net.morti.klox.scanner.TokenType
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.charset.Charset
@@ -52,15 +56,27 @@ class Lox {
             for (scanError in scanErrors) {
                 error(scanError.line, scanError.message)
             }
-        } else {
-            for (token in tokens) {
-                println(token)
-            }
+            return
+        }
+
+        val parser = Parser(tokens)
+        val expression = parser.parse()
+
+        if (expression != null) {
+            println(AstPrinter().print(expression))
         }
     }
 
-    fun error(line: Int, message: String) {
+    private fun error(line: Int, message: String) {
         report(line, "", message)
+    }
+
+    private fun error(token: Token, message: String) {
+        if(token.type == TokenType.EOF) {
+            report(token.line, " at end", message)
+        } else {
+            report(token.line, " at '${token.lexeme}'", message)
+        }
     }
 
     private fun report (line: Int, where: String, message: String) {

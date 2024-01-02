@@ -72,11 +72,11 @@ abstract class Generate: DefaultTask() {
     }
 
     private fun defineAst(outputDirectory: File, baseName: String, types: List<String>) {
-        val outFile = File(outputDirectory, "net/morti/klox/parser/$baseName.kt")
+        val outFile = File(outputDirectory, "net/morti/generated/klox/parser/$baseName.kt")
         Files.createDirectories(outFile.toPath().parent)
         val writer = PrintWriter(FileWriter(outFile, charset("UTF-8"), false))
         writer.print("""
-package net.morti.klox.parser
+package net.morti.generated.klox.parser
 
 import net.morti.klox.scanner.Token
 
