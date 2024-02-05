@@ -21,7 +21,7 @@ sourceSets.main {
 
 dependencies {
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
