@@ -92,7 +92,7 @@ ${
             }.prependIndent("    ")
         }
 
-    abstract fun <R> accept(visitor: Visitor<R>): R
+    abstract fun <R> accept(visitor: Visitor<R>): R?
 }
         """.trim())
         writer.println()
@@ -110,7 +110,7 @@ ${
 class $className(
 ${fields.joinToString(",\n") { field -> "val ${field.first}: ${field.second}".prependIndent("    ") }}
 ): $baseName() {
-    override fun <R> accept(visitor: Visitor<R>): R {
+    override fun <R> accept(visitor: Visitor<R>): R? {
         return visitor.visit${className}${baseName}(this)
     }
 }
@@ -122,7 +122,7 @@ ${fields.joinToString(",\n") { field -> "val ${field.first}: ${field.second}".pr
 interface Visitor<R> {
 ${types.joinToString("\n") { type ->
             val typeName = type.split(":")[0].trim()
-            "fun visit${typeName}${baseName}(expr: $typeName): R".prependIndent("    ")
+            "fun visit${typeName}${baseName}(expr: $typeName): R?".prependIndent("    ")
         }}
 }
         """.trim()

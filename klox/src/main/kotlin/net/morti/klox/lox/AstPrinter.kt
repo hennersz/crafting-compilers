@@ -3,15 +3,15 @@ package net.morti.klox.lox
 import net.morti.generated.klox.parser.Expr
 
 class AstPrinter: Expr.Visitor<String>{
-    fun print(expr: Expr): String {
+    fun print(expr: Expr): String? {
         return expr.accept(this)
     }
 
-    override fun visitBinaryExpr(expr: Expr.Binary): String {
+    override fun visitBinaryExpr(expr: Expr.Binary): String? {
         return parenthesize(expr.operator.lexeme, expr.left, expr.right)
     }
 
-    override fun visitGroupingExpr(expr: Expr.Grouping): String {
+    override fun visitGroupingExpr(expr: Expr.Grouping): String? {
         return parenthesize("group", expr.expression)
     }
 
@@ -20,11 +20,11 @@ class AstPrinter: Expr.Visitor<String>{
         return expr.value.toString()
     }
 
-    override fun visitUnaryExpr(expr: Expr.Unary): String {
+    override fun visitUnaryExpr(expr: Expr.Unary): String? {
         return parenthesize(expr.operator.lexeme, expr.right)
     }
 
-    private fun parenthesize(name: String, vararg exprs: Expr): String {
-        return "($name ${exprs.joinToString(" ") { expr -> expr.accept(this) }})"
+    private fun parenthesize(name: String, vararg exprs: Expr): String? {
+        return "($name ${exprs.joinToString(" ") { expr -> expr.accept(this).orEmpty() }})"
     }
 }

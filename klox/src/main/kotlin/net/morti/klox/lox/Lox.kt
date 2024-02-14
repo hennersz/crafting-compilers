@@ -1,6 +1,8 @@
 package net.morti.klox.lox
 
 import net.morti.generated.klox.parser.Expr
+import net.morti.klox.interpreter.Interpreter
+import net.morti.klox.interpreter.RuntimeError
 import net.morti.klox.parser.Parser
 import net.morti.klox.scanner.Scanner
 import net.morti.klox.scanner.Token
@@ -63,7 +65,11 @@ class Lox {
         val expression = parser.parse()
 
         if (expression != null) {
-            println(AstPrinter().print(expression))
+            try {
+                println(Interpreter().interpret(expression))
+            } catch (e: RuntimeError) {
+                error(e.token, e.message.orEmpty())
+            }
         }
     }
 
