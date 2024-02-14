@@ -1,6 +1,5 @@
 package net.morti.klox.lox
 
-import net.morti.generated.klox.parser.Expr
 import net.morti.klox.interpreter.Interpreter
 import net.morti.klox.interpreter.RuntimeError
 import net.morti.klox.parser.Parser
