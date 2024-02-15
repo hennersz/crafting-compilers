@@ -2,6 +2,7 @@ package net.morti.klox.lox
 
 import net.morti.klox.interpreter.Interpreter
 import net.morti.klox.interpreter.RuntimeError
+import net.morti.klox.parser.ParseError
 import net.morti.klox.parser.Parser
 import net.morti.klox.scanner.Scanner
 import net.morti.klox.scanner.Token
@@ -42,7 +43,7 @@ class Lox {
         val reader = BufferedReader(input)
 
         while (true) {
-            println("> ")
+            print("> ")
             val line = reader.readLine() ?: break
             run(line)
             hadError = false
@@ -61,14 +62,19 @@ class Lox {
         }
 
         val parser = Parser(tokens)
-        val expression = parser.parse()
+        val (statements, parseErrors) = parser.parse()
 
-        if (expression != null) {
-            try {
-                println(Interpreter().interpret(expression))
-            } catch (e: RuntimeError) {
-                error(e.token, e.message.orEmpty())
+        if(parseErrors.isNotEmpty()) {
+            for (parseError in parseErrors) {
+                error(parseError.token, parseError.message)
             }
+            return
+        }
+
+        try {
+            Interpreter().interpret(statements)
+        } catch (e: RuntimeError) {
+            error(e.token, e.message.orEmpty())
         }
     }
 

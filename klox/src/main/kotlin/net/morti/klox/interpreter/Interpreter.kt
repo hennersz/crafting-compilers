@@ -1,13 +1,22 @@
 package net.morti.klox.interpreter
 
 import net.morti.generated.klox.parser.Expr
+import net.morti.generated.klox.parser.Stmt
+import net.morti.klox.environment.Environment
 import net.morti.klox.scanner.Token
 import net.morti.klox.scanner.TokenType
 
-class Interpreter: Expr.Visitor<Any> {
-    fun interpret(expression: Expr): String{
-        val result = evaluate(expression)
-        return stringify(result)
+class Interpreter: Expr.Visitor<Any>, Stmt.Visitor<Unit> {
+    private var environment = Environment()
+
+    fun interpret(stmts: List<Stmt>) {
+            for (stmt in stmts) {
+                execute(stmt)
+            }
+    }
+
+    private fun execute(stmt: Stmt) {
+        stmt.accept(this)
     }
 
     private fun stringify(any: Any?): String {
@@ -93,6 +102,16 @@ class Interpreter: Expr.Visitor<Any> {
         }
     }
 
+    override fun visitVariableExpr(expr: Expr.Variable): Any? {
+        return environment.get(expr.name)
+    }
+
+    override fun visitAssignExpr(expr: Expr.Assign): Any? {
+        val value = evaluate(expr.value)
+        environment.assign(expr.name, value)
+        return value
+    }
+
     private fun evaluate(expr: Expr): Any? {
         return expr.accept(this)
     }
@@ -117,5 +136,44 @@ class Interpreter: Expr.Visitor<Any> {
     private fun checkNumberOperands(operator: Token, left: Any?, right: Any?) {
         if(left is Double && right is Double) return
         throw RuntimeError(operator, "Operands must be numbers")
+    }
+
+    override fun visitExpressionStmt(stmt: Stmt.Expression): Unit?{
+        evaluate(stmt.expression)
+        return null
+    }
+
+    override fun visitPrintStmt(stmt: Stmt.Print): Unit? {
+        val value = evaluate(stmt.expression)
+        println(value)
+        return null
+    }
+
+    override fun visitVarStmt(stmt: Stmt.Var): Unit? {
+        val value: Any? = if(stmt.initializer != null) {
+            evaluate(stmt.initializer)
+        } else {
+            null
+        }
+        environment.define(stmt.name.lexeme, value)
+
+        return null
+    }
+
+    override fun visitBlockStmt(stmt: Stmt.Block): Unit? {
+        executeBlock(stmt.statements, Environment(environment))
+        return null
+    }
+
+    private fun executeBlock(statements: List<Stmt>, environment: Environment) {
+        val previous = this.environment
+        try {
+            this.environment = environment
+            for (statement in statements) {
+                execute(statement)
+            }
+        } finally {
+            this.environment = previous
+        }
     }
 }

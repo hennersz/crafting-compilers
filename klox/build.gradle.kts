@@ -67,7 +67,16 @@ abstract class Generate: DefaultTask() {
             "Binary   : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal  : Any? value",
-            "Unary    : Token operator, Expr right"
+            "Unary    : Token operator, Expr right",
+            "Variable : Token name",
+            "Assign   : Token name, Expr value"
+        ))
+
+        defineAst(dir, "Stmt", listOf(
+            "Expression : Expr expression",
+            "Print      : Expr expression",
+            "Var        : Token name, Expr? initializer",
+            "Block      : List<Stmt> statements"
         ))
     }
 
@@ -112,6 +121,13 @@ ${fields.joinToString(",\n") { field -> "val ${field.first}: ${field.second}".pr
 ): $baseName() {
     override fun <R> accept(visitor: Visitor<R>): R? {
         return visitor.visit${className}${baseName}(this)
+    }
+    
+    override fun equals(other: Any?): Boolean {
+        if(other is $className) {
+            return ${fields.joinToString(" && ") { field -> "this.${field.first} == other.${field.first}" }}
+        }
+        return false
     }
 }
 """.trim()

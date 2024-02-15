@@ -2,22 +2,98 @@ package net.morti.klox.parser
 
 import net.morti.klox.scanner.Token
 import net.morti.generated.klox.parser.Expr
+import net.morti.generated.klox.parser.Stmt
 import net.morti.klox.scanner.TokenType
 import net.morti.klox.scanner.TokenType.*
+import kotlin.collections.ArrayList
 
 class Parser(private val tokens: List<Token>) {
     private var current: Int = 0
 
-    fun parse(): Expr? {
-        try {
-            return expression()
-        } catch (error: ParseError) {
-            return null
+    fun parse(): Pair<List<Stmt>,List<ParseError>>  {
+        val statements = ArrayList<Stmt>()
+        val errors = ArrayList<ParseError>()
+        while(!isAtEnd()) {
+            try {
+                statements.add(declaration())
+            } catch (e: ParseError) {
+                errors.add(e)
+                synchronize()
+            }
         }
+
+        return Pair(statements, errors)
+    }
+
+    private fun declaration(): Stmt {
+        if(match(VAR)) return varDeclaration()
+
+        return statement()
+    }
+
+    private fun varDeclaration(): Stmt {
+        val name = consume(IDENTIFIER, "Expect variable name.")
+
+        val initializer: Expr? = if(match(EQUAL)) {
+            expression()
+        } else {
+            null
+        }
+
+        consume(SEMICOLON, "Expect ';' after variable declaration.")
+        return Stmt.Var(name, initializer)
+    }
+
+    private fun statement(): Stmt {
+        if(match(PRINT)) return printStatement()
+        if(match(LEFT_BRACE)) return Stmt.Block(block())
+
+        return expressionStatement()
+    }
+
+    private fun block(): List<Stmt> {
+        val statements = ArrayList<Stmt>()
+
+        while(!checkType(RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration())
+        }
+
+        consume(RIGHT_BRACE, "Expected '}' after block.")
+        return statements
+    }
+
+    private fun printStatement(): Stmt {
+        val value = expression()
+        consume(SEMICOLON, "Expect ';' after value.")
+        return Stmt.Print(value)
+    }
+
+    private fun expressionStatement(): Stmt {
+        val expr = expression()
+        consume(SEMICOLON, "Expect ';' after expression.")
+        return Stmt.Expression(expr)
     }
 
     private fun expression(): Expr {
-        return equality()
+        return assignment()
+    }
+
+    private fun assignment(): Expr {
+        val expr = equality()
+
+        if(match(EQUAL)) {
+            val equals = previous()
+            val value = assignment()
+
+            if(expr is Expr.Variable) {
+                val name = expr.name
+                return Expr.Assign(name, value)
+            }
+
+            throw parseError(equals, "Invalid assignment target.")
+        }
+
+        return expr
     }
 
     private fun equality(): Expr {
@@ -85,6 +161,8 @@ class Parser(private val tokens: List<Token>) {
 
         if(match(NUMBER, STRING)) return Expr.Literal(previous().literal)
 
+        if(match(IDENTIFIER)) return Expr.Variable(previous())
+
         if(match(LEFT_PAREN)) {
             val expr = expression()
             consume(RIGHT_PAREN, "Expect ')' after expression.")
@@ -144,7 +222,7 @@ class Parser(private val tokens: List<Token>) {
         while(!isAtEnd()) {
             if(previous().type == SEMICOLON) return
 
-            when(val t = peek().type) {
+            when(peek().type) {
                 CLASS -> return
                 FUN -> return
                 VAR -> return
