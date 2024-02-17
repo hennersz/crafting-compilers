@@ -31,7 +31,7 @@
           modules = [
             ({pkgs, ...}: {
               env.JAVA_HOME = "${jdk}/lib/openjdk";
-              packages = [ kotlin jdk coreutils ];
+              packages = [ kotlin jdk coreutils gradle ];
                 enterShell = ''
                   rm -rf $DEVENV_ROOT/.lib
                   mkdir -p $DEVENV_ROOT/.lib
