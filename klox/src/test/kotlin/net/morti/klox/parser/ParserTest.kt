@@ -281,6 +281,24 @@ class ParserTest {
                     "Invalid assignment target."
                 )
             ),
+            Pair(
+                arrayListOf(
+                    Token(LEFT_BRACE, "{", null, 1),
+                    Token(NUMBER, "1", 1, 1),
+                    Token(PLUS, "+", null, 1),
+                    Token(NUMBER, "1", 1, 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(VAR, "var", null, 1),
+                    Token(IDENTIFIER, "a", null, 1),
+                    Token(EQUAL, "=", null, 1),
+                    Token(NUMBER, "1", 1, 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(EOF, "", null, 1),
+                ), ParseError(
+                    Token(EOF, "", null, 1),
+                    "Expected '}' after block."
+                )
+            ),
         )
 
         for (testCase in testCases) {
@@ -291,5 +309,30 @@ class ParserTest {
             assertEquals(1, errors.size)
             assertEquals(expected, errors[0])
         }
+    }
+
+    @Test
+    fun testSynchronize() {
+        val tokens = arrayListOf(
+            Token(VAR, "var", null, 1),
+            Token(IDENTIFIER, "a", null, 1),
+            Token(EQUAL, "=", null, 1),
+            Token(RETURN, "return", null, 1),
+            Token(VAR, "var", null, 2),
+            Token(IDENTIFIER, "a", null, 2),
+            Token(EQUAL, "=", null, 2),
+            Token(NUMBER, "1", 1, 2),
+            Token(SEMICOLON, ";", null, 2),
+            Token(EOF, "", null, 2),
+        )
+
+        val expected = ParseError(
+            Token(RETURN, "return", null, 1),
+            "expected expression."
+        )
+        val (statements, errors) = Parser(tokens).parse()
+        assertEquals(1, statements.size)
+        assertEquals(1, errors.size)
+        assertEquals(expected, errors[0])
     }
 }
