@@ -3,7 +3,6 @@ package net.morti.klox.parser
 import net.morti.generated.klox.parser.Expr
 import net.morti.generated.klox.parser.Stmt
 import net.morti.klox.scanner.Token
-import net.morti.klox.scanner.TokenType
 import net.morti.klox.scanner.TokenType.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
