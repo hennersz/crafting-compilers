@@ -312,6 +312,34 @@ class InterpreterTest {
             ),
             "2.0"
         ),
+        Triple(
+            "Test loop",
+            arrayListOf(
+                Stmt.Var(Token(TokenType.IDENTIFIER, "a", "a", 1), Expr.Literal(0.0)),
+                Stmt.While(
+                    Expr.Binary(
+                        Expr.Variable(Token(TokenType.IDENTIFIER, "a", "a", 1)),
+                        Token(TokenType.LESS, "<", null, 1),
+                        Expr.Literal(3.0)
+                    ), Stmt.Block(arrayListOf(
+                        Stmt.Print(Expr.Variable(Token(TokenType.IDENTIFIER, "a", "a", 1))),
+                        Stmt.Expression(Expr.Assign(
+                            Token(TokenType.IDENTIFIER, "a", "a", 1),
+                            Expr.Binary(
+                                Expr.Variable(Token(TokenType.IDENTIFIER, "a", "a", 1)),
+                                Token(TokenType.PLUS, "+", null, 1),
+                                Expr.Literal(1.0)
+                            )
+                        ))
+                    ))
+                ),
+            ),
+            """
+            0.0
+            1.0
+            2.0
+            """.trimIndent()
+        ),
     ).map { (name, statements, expected) ->
         dynamicTest(name) {
 

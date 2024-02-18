@@ -175,6 +175,14 @@ class Interpreter: Expr.Visitor<Any>, Stmt.Visitor<Unit> {
         return null
     }
 
+    override fun visitWhileStmt(stmt: Stmt.While): Unit? {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body)
+        }
+
+        return null
+    }
+
     private fun executeBlock(statements: List<Stmt>, environment: Environment) {
         val previous = this.environment
         try {

@@ -6,7 +6,6 @@ import net.morti.generated.klox.parser.Stmt
 import net.morti.klox.scanner.TokenType
 import net.morti.klox.scanner.TokenType.*
 import kotlin.collections.ArrayList
-import kotlin.math.exp
 
 class Parser(private val tokens: List<Token>) {
     private var current: Int = 0
@@ -46,11 +45,68 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun statement(): Stmt {
+        if(match(FOR)) return forStatement()
         if (match(IF)) return ifStatement()
         if(match(PRINT)) return printStatement()
+        if(match(WHILE)) return whileStatement()
         if(match(LEFT_BRACE)) return Stmt.Block(block())
 
         return expressionStatement()
+    }
+
+    private fun forStatement(): Stmt {
+        consume(LEFT_PAREN, "Expect '(' after 'for'.")
+
+        val initializer = if (match(SEMICOLON)) {
+            null
+        } else if (match(VAR)) {
+            varDeclaration()
+        } else {
+            expressionStatement()
+        }
+
+        val condition = if(!checkType(SEMICOLON)) {
+            expression()
+        } else {
+            Expr.Literal(true)
+        }
+
+        consume(SEMICOLON, "Expect ';' after loop condition.")
+
+        val increment = if(!checkType(RIGHT_PAREN)) {
+            expression()
+        } else {
+            null
+        }
+
+        consume(RIGHT_PAREN, "Expect ')' after for clauses")
+
+        var body = statement()
+
+        if(increment != null) {
+            body = Stmt.Block(
+                arrayListOf(
+                    body,
+                    Stmt.Expression(increment)
+                )
+            )
+        }
+
+        body = Stmt.While(condition, body)
+        if(initializer != null) {
+            body = Stmt.Block(arrayListOf(initializer, body))
+        }
+
+        return body
+    }
+
+    private fun whileStatement(): Stmt {
+        consume(LEFT_PAREN, "Expect '(' after 'while'.")
+        val condition = expression()
+        consume(RIGHT_PAREN, "Expect ')' after condition.")
+        val body = statement()
+
+        return Stmt.While(condition, body)
     }
 
     private fun ifStatement(): Stmt {

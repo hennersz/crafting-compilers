@@ -337,6 +337,37 @@ class ParserTest {
                     )
                 )
             ),
+            Pair(
+                arrayListOf(
+                    Token(WHILE, "while", null, 1),
+                    Token(LEFT_PAREN, "(", null, 1),
+                    Token(TRUE, "true", null, 1),
+                    Token(RIGHT_PAREN, ")", null, 1),
+                    Token(PRINT, "print", null, 1),
+                    Token(STRING, "hello", "hello", 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(EOF, "", null, 1),
+                ), Stmt.While(
+                    Expr.Literal(true),
+                    Stmt.Print(Expr.Literal("hello"))
+                )
+            ),
+            Pair(
+                arrayListOf(
+                    Token(FOR, "for", null, 1),
+                    Token(LEFT_PAREN, "(", null, 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(RIGHT_PAREN, ")", null, 1),
+                    Token(PRINT, "print", null, 1),
+                    Token(STRING, "hello", "hello", 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(EOF, "", null, 1),
+                ), Stmt.While(
+                    Expr.Literal(true),
+                    Stmt.Print(Expr.Literal("hello"))
+                )
+            ),
         )
 
         for (testCase in testCases) {
