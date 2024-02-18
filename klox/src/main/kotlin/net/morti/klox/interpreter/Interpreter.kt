@@ -19,20 +19,6 @@ class Interpreter: Expr.Visitor<Any>, Stmt.Visitor<Unit> {
         stmt.accept(this)
     }
 
-    private fun stringify(any: Any?): String {
-        if(any == null) return "nil"
-
-        if(any is Double) {
-            var text = any.toString()
-            if(text.endsWith(".0")) {
-                text = text.substring(0, text.length - 2)
-            }
-            return text
-        }
-
-        return any.toString()
-    }
-
     override fun visitBinaryExpr(expr: Expr.Binary): Any? {
         val left = evaluate(expr.left)
         val right = evaluate(expr.right)
@@ -144,7 +130,7 @@ class Interpreter: Expr.Visitor<Any>, Stmt.Visitor<Unit> {
     }
 
     override fun visitPrintStmt(stmt: Stmt.Print): Unit? {
-        val value = evaluate(stmt.expression)
+        val value = evaluate(stmt.expression)?: "nil"
         println(value)
         return null
     }
