@@ -16,7 +16,7 @@ class ScannerTest {
                 Token(TokenType.SEMICOLON, ";", null, 1),
                 Token(TokenType.EOF, "", null, 1),
             ),
-            tokens
+            tokens,
         )
     }
 
@@ -46,7 +46,7 @@ class ScannerTest {
                 Token(TokenType.SLASH, "/", null, 1),
                 Token(TokenType.EOF, "", null, 1),
             ),
-            tokens
+            tokens,
         )
     }
 
@@ -58,24 +58,27 @@ class ScannerTest {
                 Token(TokenType.SEMICOLON, ";", null, 1),
                 Token(TokenType.EOF, "", null, 1),
             ),
-            tokens
+            tokens,
         )
         assertContentEquals(
             arrayListOf(
                 ScanError("error scanning character: [", 1),
-                ScanError("error scanning character: ]", 1)
+                ScanError("error scanning character: ]", 1),
             ),
-            errors
+            errors,
         )
     }
 
     @Test
     fun testMultiLine() {
-        val (tokens, errors) = Scanner("""
-            print "Hello, world!";
-            var im_a_variable = "here is my value";
-            var NUMERIC123 = 123;
-        """.trimIndent()).scanTokens()
+        val (tokens, errors) =
+            Scanner(
+                """
+                print "Hello, world!";
+                var im_a_variable = "here is my value";
+                var NUMERIC123 = 123;
+                """.trimIndent(),
+            ).scanTokens()
         assertEquals(0, errors.size)
         assertContentEquals(
             arrayListOf(
@@ -94,18 +97,21 @@ class ScannerTest {
                 Token(TokenType.SEMICOLON, ";", null, 3),
                 Token(TokenType.EOF, "", null, 3),
             ),
-            tokens
+            tokens,
         )
     }
 
     @Test
     fun testBlockComment() {
-        val (tokens, errors) = Scanner("""
-            /* some 
-             * long block comment
-             */
-            print "Hello, world!";
-        """.trimIndent()).scanTokens()
+        val (tokens, errors) =
+            Scanner(
+                """
+                /* some 
+                 * long block comment
+                 */
+                print "Hello, world!";
+                """.trimIndent(),
+            ).scanTokens()
         assertEquals(0, errors.size)
         assertContentEquals(
             arrayListOf(
@@ -114,21 +120,24 @@ class ScannerTest {
                 Token(TokenType.SEMICOLON, ";", null, 4),
                 Token(TokenType.EOF, "", null, 4),
             ),
-            tokens
+            tokens,
         )
     }
 
     @Test
     fun testNestedBlockComment() {
-        val (tokens, errors) = Scanner("""
-            /* some 
-             * long block comment
-            /* with
-             * another / inside 
-             */
-             */
-            print "Hello, world!";
-        """.trimIndent()).scanTokens()
+        val (tokens, errors) =
+            Scanner(
+                """
+                /* some 
+                 * long block comment
+                /* with
+                 * another / inside 
+                 */
+                 */
+                print "Hello, world!";
+                """.trimIndent(),
+            ).scanTokens()
         assertEquals(0, errors.size)
         assertContentEquals(
             arrayListOf(
@@ -137,59 +146,68 @@ class ScannerTest {
                 Token(TokenType.SEMICOLON, ";", null, 7),
                 Token(TokenType.EOF, "", null, 7),
             ),
-            tokens
+            tokens,
         )
     }
 
     @Test
     fun testUnterminatedBlockComment() {
-        val (tokens, errors) = Scanner("""
-            /* some 
-             * long block comment
-            /* with
-             * another inside 
-             */
-            print "Hello, world!";
-        """.trimIndent()).scanTokens()
+        val (tokens, errors) =
+            Scanner(
+                """
+                /* some 
+                 * long block comment
+                /* with
+                 * another inside 
+                 */
+                print "Hello, world!";
+                """.trimIndent(),
+            ).scanTokens()
         assertContentEquals(
             arrayListOf(
                 Token(TokenType.EOF, "", null, 6),
             ),
-            tokens
+            tokens,
         )
         assertContentEquals(
             arrayListOf(
-                ScanError("Unterminated block comment.", 6)
+                ScanError("Unterminated block comment.", 6),
             ),
-            errors
+            errors,
         )
     }
 
     @Test
     fun testUnterminatedString() {
-        val (tokens, errors) = Scanner("""
-            print "Hello, world!
-        """.trimIndent()).scanTokens()
+        val (tokens, errors) =
+            Scanner(
+                """
+                print "Hello, world!
+                """.trimIndent(),
+            ).scanTokens()
         assertContentEquals(
             arrayListOf(
                 Token(TokenType.PRINT, "print", null, 1),
                 Token(TokenType.EOF, "", null, 1),
             ),
-            tokens
+            tokens,
         )
         assertContentEquals(
             arrayListOf(
-                ScanError("Unterminated string", 1)
+                ScanError("Unterminated string", 1),
             ),
-            errors
+            errors,
         )
     }
 
     @Test
     fun testDecimal() {
-        val (tokens, errors) = Scanner("""
-            var test = 1.23;
-        """.trimIndent()).scanTokens()
+        val (tokens, errors) =
+            Scanner(
+                """
+                var test = 1.23;
+                """.trimIndent(),
+            ).scanTokens()
         assertEquals(0, errors.size)
         assertContentEquals(
             arrayListOf(
@@ -200,17 +218,20 @@ class ScannerTest {
                 Token(TokenType.SEMICOLON, ";", null, 1),
                 Token(TokenType.EOF, "", null, 1),
             ),
-            tokens
+            tokens,
         )
     }
 
     @Test
     fun testLineComment() {
-        val (tokens, errors) = Scanner("""
-            // this is a comment
-            var test;
-            //
-        """.trimIndent()).scanTokens()
+        val (tokens, errors) =
+            Scanner(
+                """
+                // this is a comment
+                var test;
+                //
+                """.trimIndent(),
+            ).scanTokens()
         assertEquals(0, errors.size)
         assertContentEquals(
             arrayListOf(
@@ -219,7 +240,7 @@ class ScannerTest {
                 Token(TokenType.SEMICOLON, ";", null, 2),
                 Token(TokenType.EOF, "", null, 3),
             ),
-            tokens
+            tokens,
         )
     }
 }

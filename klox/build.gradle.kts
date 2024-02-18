@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.9.22"
     application
     jacoco
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
 group = "net.morti"
@@ -34,6 +35,12 @@ tasks.compileKotlin {
     dependsOn(tasks.getByName("generate"))
 }
 
+tasks.runKtlintCheckOverMainSourceSet {
+    dependsOn(tasks.getByName("generate"))
+}
+
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+}
 tasks.test {
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
@@ -56,78 +63,96 @@ application {
     mainClass.set("MainKt") // The main class of the application
 }
 
-abstract class Generate: DefaultTask() {
+abstract class Generate : DefaultTask() {
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
     @TaskAction
     fun run() {
         val dir = outputDir.get().asFile
-        defineAst(dir, "Expr", listOf(
-            "Binary   : Expr left, Token operator, Expr right",
-            "Grouping : Expr expression",
-            "Literal  : Any? value",
-            "Unary    : Token operator, Expr right",
-            "Variable : Token name",
-            "Assign   : Token name, Expr value",
-            "Logical  : Expr left, Token operator, Expr right"
-        ))
+        defineAst(
+            dir,
+            "Expr",
+            listOf(
+                "Binary   : Expr left, Token operator, Expr right",
+                "Grouping : Expr expression",
+                "Literal  : Any? value",
+                "Unary    : Token operator, Expr right",
+                "Variable : Token name",
+                "Assign   : Token name, Expr value",
+                "Logical  : Expr left, Token operator, Expr right",
+            ),
+        )
 
-        defineAst(dir, "Stmt", listOf(
-            "Expression : Expr expression",
-            "Print      : Expr expression",
-            "Var        : Token name, Expr? initializer",
-            "Block      : List<Stmt> statements",
-            "If         : Expr condition, Stmt thenBranch, Stmt? elseBranch",
-            "While      : Expr condition, Stmt body"
-        ))
+        defineAst(
+            dir,
+            "Stmt",
+            listOf(
+                "Expression : Expr expression",
+                "Print      : Expr expression",
+                "Var        : Token name, Expr? initializer",
+                "Block      : List<Stmt> statements",
+                "If         : Expr condition, Stmt thenBranch, Stmt? elseBranch",
+                "While      : Expr condition, Stmt body",
+            ),
+        )
     }
 
-    private fun defineAst(outputDirectory: File, baseName: String, types: List<String>) {
+    private fun defineAst(
+        outputDirectory: File,
+        baseName: String,
+        types: List<String>,
+    ) {
         val outFile = File(outputDirectory, "net/morti/generated/klox/parser/$baseName.kt")
         Files.createDirectories(outFile.toPath().parent)
         val writer = PrintWriter(FileWriter(outFile, charset("UTF-8"), false))
-        writer.print("""
+        writer.print(
+            """
 package net.morti.generated.klox.parser
 
 import net.morti.klox.scanner.Token
 
 abstract class $baseName {
-
 ${defineVisitor(baseName, types).prependIndent("    ")}
 
 ${
-            types.joinToString("\n\n") { type ->
-                val className = type.split(":")[0].trim()
-                val fields = type.split(":")[1].trim()
-                defineType(baseName, className, fields)
-            }.prependIndent("    ")
-        }
+                types.joinToString("\n\n") { type ->
+                    val className = type.split(":")[0].trim()
+                    val fields = type.split(":")[1].trim()
+                    defineType(baseName, className, fields)
+                }.prependIndent("    ")
+            }
 
     abstract fun <R> accept(visitor: Visitor<R>): R?
 }
-        """.trim())
+        """.trim().replace(Regex("^\\s*$", RegexOption.MULTILINE), ""),
+        )
         writer.println()
         writer.close()
     }
 
-    private fun defineType(baseName: String, className: String, fieldList: String): String {
-        val fields = fieldList.split(", ").map{ field ->
-            val t = field.split(" ")[0]
-            val v = field.split(" ")[1]
-            Pair(v, t)
-        }
+    private fun defineType(
+        baseName: String,
+        className: String,
+        fieldList: String,
+    ): String {
+        val fields =
+            fieldList.split(", ").map { field ->
+                val t = field.split(" ")[0]
+                val v = field.split(" ")[1]
+                Pair(v, t)
+            }
 
         return """
 class $className(
-${fields.joinToString(",\n") { field -> "val ${field.first}: ${field.second}".prependIndent("    ") }}
-): $baseName() {
+${fields.joinToString("\n") { field -> "val ${field.first}: ${field.second},".prependIndent("    ") }}
+) : $baseName() {
     override fun <R> accept(visitor: Visitor<R>): R? {
-        return visitor.visit${className}${baseName}(this)
+        return visitor.visit${className}$baseName(this)
     }
-    
+
     override fun equals(other: Any?): Boolean {
-        if(other is $className) {
+        if (other is $className) {
             return ${fields.joinToString(" && ") { field -> "this.${field.first} == other.${field.first}" }}
         }
         return false
@@ -136,12 +161,15 @@ ${fields.joinToString(",\n") { field -> "val ${field.first}: ${field.second}".pr
 """.trim()
     }
 
-    private fun defineVisitor(baseName: String, types: List<String>): String {
+    private fun defineVisitor(
+        baseName: String,
+        types: List<String>,
+    ): String {
         return """
 interface Visitor<R> {
 ${types.joinToString("\n") { type ->
             val typeName = type.split(":")[0].trim()
-            "fun visit${typeName}${baseName}(expr: $typeName): R?".prependIndent("    ")
+            "fun visit${typeName}$baseName(expr: $typeName): R?".prependIndent("    ")
         }}
 }
         """.trim()

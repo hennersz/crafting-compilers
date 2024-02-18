@@ -3,7 +3,7 @@ with pkgs;
 let
   deps = stdenv.mkDerivation {
     pname = "klox-deps";
-    version = "1.0.1";
+    version = "1.0.2";
     src = ./klox;
     nativeBuildInputs = [perl jdk gradle];
     # run the same build as our main derivation to ensure we capture the correct set of dependencies
@@ -27,7 +27,7 @@ let
     # specify the content hash of this derivations output
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-WQVVQjdtzv1p8OxQ/F4pgvnbvKUrL4TnfXWJplpPRP4=";
+    outputHash = "sha256-BWmF32KyayLOyGZDeS6u9lCYzQFCAgqte8KBFtLvElk=";
   };
 
     gradleInit = pkgs.writeText "init.gradle" ''

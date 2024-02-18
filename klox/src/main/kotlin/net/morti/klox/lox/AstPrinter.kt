@@ -2,7 +2,7 @@ package net.morti.klox.lox
 
 import net.morti.generated.klox.parser.Expr
 
-class AstPrinter: Expr.Visitor<String>{
+class AstPrinter : Expr.Visitor<String> {
     fun print(expr: Expr): String? {
         return expr.accept(this)
     }
@@ -36,7 +36,10 @@ class AstPrinter: Expr.Visitor<String>{
         TODO("Not yet implemented")
     }
 
-    private fun parenthesize(name: String, vararg exprs: Expr): String? {
+    private fun parenthesize(
+        name: String,
+        vararg exprs: Expr,
+    ): String? {
         return "($name ${exprs.joinToString(" ") { expr -> expr.accept(this).orEmpty() }})"
     }
 }

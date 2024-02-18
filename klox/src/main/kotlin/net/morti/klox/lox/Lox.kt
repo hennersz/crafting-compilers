@@ -2,7 +2,6 @@ package net.morti.klox.lox
 
 import net.morti.klox.interpreter.Interpreter
 import net.morti.klox.interpreter.RuntimeError
-import net.morti.klox.parser.ParseError
 import net.morti.klox.parser.Parser
 import net.morti.klox.scanner.Scanner
 import net.morti.klox.scanner.Token
@@ -64,7 +63,7 @@ class Lox {
         val parser = Parser(tokens)
         val (statements, parseErrors) = parser.parse()
 
-        if(parseErrors.isNotEmpty()) {
+        if (parseErrors.isNotEmpty()) {
             for (parseError in parseErrors) {
                 error(parseError.token, parseError.message)
             }
@@ -78,19 +77,29 @@ class Lox {
         }
     }
 
-    private fun error(line: Int, message: String) {
+    private fun error(
+        line: Int,
+        message: String,
+    ) {
         report(line, "", message)
     }
 
-    private fun error(token: Token, message: String) {
-        if(token.type == TokenType.EOF) {
+    private fun error(
+        token: Token,
+        message: String,
+    ) {
+        if (token.type == TokenType.EOF) {
             report(token.line, " at end", message)
         } else {
             report(token.line, " at '${token.lexeme}'", message)
         }
     }
 
-    private fun report (line: Int, where: String, message: String) {
+    private fun report(
+        line: Int,
+        where: String,
+        message: String,
+    ) {
         println("[line$line] Error$where: $message")
         hadError = true
     }

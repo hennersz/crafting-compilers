@@ -4,16 +4,19 @@ import net.morti.klox.interpreter.RuntimeError
 import net.morti.klox.scanner.Token
 
 class Environment(private val enclosing: Environment?) {
-    constructor():this(null)
+    constructor() : this(null)
+
     private val values = HashMap<String, Any?>()
 
-
-    fun define(name: String, value: Any?) {
+    fun define(
+        name: String,
+        value: Any?,
+    ) {
         values[name] = value
     }
 
     fun get(name: Token): Any? {
-        if(name.lexeme in values) {
+        if (name.lexeme in values) {
             return values[name.lexeme]
         }
 
@@ -24,13 +27,16 @@ class Environment(private val enclosing: Environment?) {
         throw RuntimeError(name, "Undefined variable at '${name.lexeme}'.")
     }
 
-    fun assign(name: Token, value: Any?) {
-        if(name.lexeme in values) {
+    fun assign(
+        name: Token,
+        value: Any?,
+    ) {
+        if (name.lexeme in values) {
             values[name.lexeme] = value
             return
         }
 
-        if(enclosing != null) {
+        if (enclosing != null) {
             enclosing.assign(name, value)
             return
         }

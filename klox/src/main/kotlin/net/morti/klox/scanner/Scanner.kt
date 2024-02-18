@@ -8,25 +8,27 @@ class Scanner(private val source: String) {
     private var start = 0
     private var current = 0
     private var line = 1
+
     companion object {
-        val keywords = hashMapOf(
-            "and" to AND,
-            "class" to CLASS,
-            "else" to ELSE,
-            "false" to FALSE,
-            "for" to FOR,
-            "fun" to FUN,
-            "if" to IF,
-            "nil" to NIL,
-            "or" to OR,
-            "print" to PRINT,
-            "return" to RETURN,
-            "super" to SUPER,
-            "this" to THIS,
-            "true" to TRUE,
-            "var" to VAR,
-            "while" to WHILE,
-        )
+        val keywords =
+            hashMapOf(
+                "and" to AND,
+                "class" to CLASS,
+                "else" to ELSE,
+                "false" to FALSE,
+                "for" to FOR,
+                "fun" to FUN,
+                "if" to IF,
+                "nil" to NIL,
+                "or" to OR,
+                "print" to PRINT,
+                "return" to RETURN,
+                "super" to SUPER,
+                "this" to THIS,
+                "true" to TRUE,
+                "var" to VAR,
+                "while" to WHILE,
+            )
     }
 
     fun scanTokens(): Pair<List<Token>, List<ScanError>> {
@@ -94,12 +96,18 @@ class Scanner(private val source: String) {
         addToken(type, null)
     }
 
-    private fun addToken(type: TokenType, literal: Any?) {
+    private fun addToken(
+        type: TokenType,
+        literal: Any?,
+    ) {
         val text = source.substring(start, current)
         tokens.add(Token(type, text, literal, line))
     }
 
-    private fun addScanError(c: Char, line: Int) {
+    private fun addScanError(
+        c: Char,
+        line: Int,
+    ) {
         scanErrors.add(ScanError("error scanning character: $c", line))
     }
 
@@ -155,19 +163,19 @@ class Scanner(private val source: String) {
     }
 
     private fun identifier() {
-        while(isAlphaNumeric(peek())) advance()
+        while (isAlphaNumeric(peek())) advance()
 
         val text = source.substring(start, current)
         addToken(keywords.getOrDefault(text, IDENTIFIER))
     }
 
-    private fun isAlpha(c: Char) : Boolean {
+    private fun isAlpha(c: Char): Boolean {
         return (c in 'a'..'z') ||
-                (c in 'A'..'Z') ||
-                c == '_'
+            (c in 'A'..'Z') ||
+            c == '_'
     }
 
-    private fun isAlphaNumeric(c: Char) : Boolean {
+    private fun isAlphaNumeric(c: Char): Boolean {
         return isAlpha(c) || isDigit(c)
     }
 
@@ -191,7 +199,7 @@ class Scanner(private val source: String) {
             }
         }
 
-        if(isAtEnd() && nesting > 0) {
+        if (isAtEnd() && nesting > 0) {
             scanErrors.add(ScanError("Unterminated block comment.", line))
         }
     }
