@@ -3,7 +3,14 @@ package net.morti.klox.lox
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import com.github.stefanbirkner.systemlambda.SystemLambda.*
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.TestFactory
 import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.stream.Stream
+import org.junit.jupiter.api.DynamicTest.dynamicTest
+import kotlin.io.path.*
 
 class LoxTest {
 
@@ -25,19 +32,23 @@ class LoxTest {
         assertEquals("Usage: jlox [script]\n", output)
     }
 
-    @Test
-    fun runFile() {
-        val testScript = File("src/test/resources/helloWorld.lox").absolutePath
-        val args = arrayOf(testScript)
-        val returnValue = Lox().start(args)
-        assertEquals(0, returnValue)
+    @TestFactory
+    fun runTestFiles(): List<DynamicTest> = Paths.get("src/test/resources").listDirectoryEntries("*.lox").map { path ->
+        dynamicTest(path.fileName.toString()) {
+            val testScript = path.toFile().absolutePath
+            val expectedOutput = Path(testScript.replace(".lox", ".out")).readText().trim()
+            val returnFile = Path(testScript.replace(".lox", ".ret"))
+            val expectedReturnValue = if (returnFile.exists()) {
+                returnFile.readText().trim().toInt()
+            } else {
+                0
+            }
+            val output = tapSystemOut {
+                val returnValue = Lox().start(arrayOf(testScript))
+                assertEquals(expectedReturnValue, returnValue)
+            }.trim()
+            assertEquals(expectedOutput, output)
+        }
     }
 
-    @Test
-    fun runFileWithError() {
-        val testScript = File("src/test/resources/badString.lox").absolutePath
-        val args = arrayOf(testScript)
-        val returnValue = Lox().start(args)
-        assertEquals(65, returnValue)
-    }
 }
