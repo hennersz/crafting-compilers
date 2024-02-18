@@ -228,7 +228,115 @@ class ParserTest {
                         )
                     )
                 )
-            )
+            ),
+            Pair(
+                arrayListOf(
+                    Token(IF, "if", null, 1),
+                    Token(LEFT_PAREN, "(", null, 1),
+                    Token(TRUE, "true", null, 1),
+                    Token(RIGHT_PAREN, ")", null, 1),
+                    Token(PRINT, "print", null, 1),
+                    Token(STRING, "hello", "hello", 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(EOF, "", null, 1),
+                ), Stmt.If(
+                    Expr.Literal(true),
+                    Stmt.Print(Expr.Literal("hello")),
+                    null
+                )
+            ),
+            Pair(
+                arrayListOf(
+                    Token(IF, "if", null, 1),
+                    Token(LEFT_PAREN, "(", null, 1),
+                    Token(TRUE, "true", null, 1),
+                    Token(RIGHT_PAREN, ")", null, 1),
+                    Token(PRINT, "print", null, 1),
+                    Token(STRING, "hello", "hello", 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(ELSE, "else", null, 1),
+                    Token(PRINT, "print", null, 1),
+                    Token(STRING, "bye", "bye", 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(EOF, "", null, 1),
+                ), Stmt.If(
+                    Expr.Literal(true),
+                    Stmt.Print(Expr.Literal("hello")),
+                    Stmt.Print(Expr.Literal("bye"))
+                )
+            ),
+            Pair(
+                arrayListOf(
+                    Token(TRUE, "true", null, 1),
+                    Token(AND, "and", null, 1),
+                    Token(TRUE, "true", null, 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(EOF, "", null, 1),
+                ), Stmt.Expression(
+                    Expr.Logical(
+                        Expr.Literal(true),
+                        Token(AND, "and", null, 1),
+                        Expr.Literal(true)
+                    )
+                )
+            ),
+            Pair(
+                arrayListOf(
+                    Token(TRUE, "true", null, 1),
+                    Token(OR, "or", null, 1),
+                    Token(TRUE, "true", null, 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(EOF, "", null, 1),
+                ), Stmt.Expression(
+                    Expr.Logical(
+                        Expr.Literal(true),
+                        Token(OR, "or", null, 1),
+                        Expr.Literal(true)
+                    )
+                )
+            ),
+            Pair(
+                arrayListOf(
+                    Token(TRUE, "true", null, 1),
+                    Token(AND, "and", null, 1),
+                    Token(TRUE, "true", null, 1),
+                    Token(OR, "or", null, 1),
+                    Token(TRUE, "true", null, 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(EOF, "", null, 1),
+                ), Stmt.Expression(
+                    Expr.Logical(
+                        Expr.Logical(
+                            Expr.Literal(true),
+                            Token(AND, "and", null, 1),
+                            Expr.Literal(true),
+                        ),
+                        Token(OR, "or", null, 1),
+                        Expr.Literal(true)
+                    )
+                )
+            ),
+            Pair(
+                arrayListOf(
+                    Token(TRUE, "true", null, 1),
+                    Token(OR, "or", null, 1),
+                    Token(TRUE, "true", null, 1),
+                    Token(AND, "and", null, 1),
+                    Token(TRUE, "true", null, 1),
+                    Token(SEMICOLON, ";", null, 1),
+                    Token(EOF, "", null, 1),
+                ), Stmt.Expression(
+                    Expr.Logical(
+                        Expr.Literal(true),
+                        Token(OR, "or", null, 1),
+                        Expr.Logical(
+                            Expr.Literal(true),
+                            Token(AND, "and", null, 1),
+                            Expr.Literal(true),
+                        ),
+                    )
+                )
+            ),
         )
 
         for (testCase in testCases) {

@@ -1,0 +1,7 @@
+if (true)
+    print "hello";
+
+if (false)
+    print "hello";
+else
+    print "bye";

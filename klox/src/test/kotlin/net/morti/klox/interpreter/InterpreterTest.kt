@@ -253,6 +253,65 @@ class InterpreterTest {
             4.0
             """.trimIndent()
         ),
+        Triple(
+            "Test if",
+            arrayListOf(
+                Stmt.If(
+                    Expr.Literal(true),
+                    Stmt.Print(Expr.Literal("hello")),
+                    Stmt.Print(Expr.Literal("bye"))
+                ),
+            ),
+            "hello"
+        ),
+        Triple(
+            "Test else",
+            arrayListOf(
+                Stmt.If(
+                    Expr.Literal(false),
+                    Stmt.Print(Expr.Literal("hello")),
+                    Stmt.Print(Expr.Literal("bye"))
+                ),
+            ),
+            "bye"
+        ),
+        Triple(
+            "Test no else",
+            arrayListOf(
+                Stmt.If(
+                    Expr.Literal(false),
+                    Stmt.Print(Expr.Literal("hello")),
+                    null
+                ),
+            ),
+            ""
+        ),
+        Triple(
+            "Test and",
+            arrayListOf(
+                Stmt.Print(
+                    Expr.Logical(
+                        Expr.Literal(false),
+                        Token(TokenType.AND, "and", null, 1),
+                        Expr.Literal(2)
+                    )
+                ),
+            ),
+            "false"
+        ),
+        Triple(
+            "Test or",
+            arrayListOf(
+                Stmt.Print(
+                    Expr.Logical(
+                        Expr.Literal(null),
+                        Token(TokenType.OR, "or", null, 1),
+                        Expr.Literal(2.0)
+                    )
+                ),
+            ),
+            "2.0"
+        ),
     ).map { (name, statements, expected) ->
         dynamicTest(name) {
 
