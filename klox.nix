@@ -3,7 +3,7 @@ with pkgs;
 let
   deps = stdenv.mkDerivation {
     pname = "klox-deps";
-    version = "1.0.2";
+    version = "1.0.3";
     src = ./klox;
     nativeBuildInputs = [perl jdk gradle];
     # run the same build as our main derivation to ensure we capture the correct set of dependencies
@@ -19,15 +19,15 @@ let
         | perl -pe 's#(.*/([^/]+)/([^/]+)/([^/]+)/[0-9a-f]{30,40}/([^/\s]+))$# ($x = $2) =~ tr|\.|/|; "install -Dm444 $1 \$out/$x/$3/$4/$5" #e' \
         | sh
 
-        pushd $out/org/jetbrains/kotlin/kotlin-gradle-plugin/1.9.22/ &>/dev/null
-          cp -v ../../kotlin-gradle-plugin/1.9.22/kotlin-gradle-plugin-1.9.22-gradle82.jar kotlin-gradle-plugin-1.9.22.jar
+        pushd $out/org/jetbrains/kotlin/kotlin-gradle-plugin/1.9.23/ &>/dev/null
+          cp -v ../../kotlin-gradle-plugin/1.9.23/kotlin-gradle-plugin-1.9.23-gradle82.jar kotlin-gradle-plugin-1.9.23.jar
         popd &>/dev/null
     '';
 
     # specify the content hash of this derivations output
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-BWmF32KyayLOyGZDeS6u9lCYzQFCAgqte8KBFtLvElk=";
+    outputHash = "sha256-FFLmGtiexY5qFT9ptJ1rYhyMSJ657HLp6ZOHPx4GJ+c=";
   };
 
     gradleInit = pkgs.writeText "init.gradle" ''
