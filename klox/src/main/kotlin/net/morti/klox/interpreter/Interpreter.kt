@@ -3,11 +3,17 @@ package net.morti.klox.interpreter
 import net.morti.generated.klox.parser.Expr
 import net.morti.generated.klox.parser.Stmt
 import net.morti.klox.environment.Environment
+import net.morti.klox.interpreter.nativeFunctions.Clock
 import net.morti.klox.scanner.Token
 import net.morti.klox.scanner.TokenType
 
 class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
-    private var environment = Environment()
+    val globals = Environment()
+    private var environment = globals
+
+    init {
+        globals.define("clock", Clock())
+    }
 
     fun interpret(stmts: List<Stmt>) {
         for (stmt in stmts) {
@@ -17,6 +23,21 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
 
     private fun execute(stmt: Stmt) {
         stmt.accept(this)
+    }
+
+    fun executeBlock(
+        statements: List<Stmt>,
+        environment: Environment,
+    ) {
+        val previous = this.environment
+        try {
+            this.environment = environment
+            for (statement in statements) {
+                execute(statement)
+            }
+        } finally {
+            this.environment = previous
+        }
     }
 
     override fun visitBinaryExpr(expr: Expr.Binary): Any? {
@@ -63,8 +84,29 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
                     throw RuntimeError(expr.operator, "Operands must be 2 numbers or 2 strings")
                 }
             }
+            // TODO Update types we switch on so only binary types are possible here
             else -> null
         }
+    }
+
+    override fun visitCallExpr(expr: Expr.Call): Any? {
+        val callee = evaluate(expr.callee)
+
+        val arguments = ArrayList<Any?>()
+
+        for (argument in expr.arguments) {
+            arguments.add(evaluate(argument))
+        }
+
+        if (callee !is LocCallable) {
+            throw RuntimeError(expr.paren, "Can only call functions and classes.")
+        }
+
+        if (arguments.size != callee.arity()) {
+            throw RuntimeError(expr.paren, "Expected ${callee.arity()} arguments but got ${arguments.size}.")
+        }
+
+        return callee.call(this, arguments)
     }
 
     override fun visitGroupingExpr(expr: Expr.Grouping): Any? {
@@ -159,6 +201,17 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
         return null
     }
 
+    override fun visitReturnStmt(stmt: Stmt.Return): Unit? {
+        val value =
+            if (stmt.value != null) {
+                evaluate(stmt.value)
+            } else {
+                null
+            }
+
+        throw Return(value)
+    }
+
     override fun visitVarStmt(stmt: Stmt.Var): Unit? {
         val value: Any? =
             if (stmt.initializer != null) {
@@ -194,18 +247,9 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
         return null
     }
 
-    private fun executeBlock(
-        statements: List<Stmt>,
-        environment: Environment,
-    ) {
-        val previous = this.environment
-        try {
-            this.environment = environment
-            for (statement in statements) {
-                execute(statement)
-            }
-        } finally {
-            this.environment = previous
-        }
+    override fun visitFunctionStmt(stmt: Stmt.Function): Unit? {
+        val function = LoxFunction(stmt, environment)
+        environment.define(stmt.name.lexeme, function)
+        return null
     }
 }

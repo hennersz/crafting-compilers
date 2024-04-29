@@ -75,6 +75,7 @@ abstract class Generate : DefaultTask() {
             "Expr",
             listOf(
                 "Binary   : Expr left, Token operator, Expr right",
+                "Call     : Expr callee, Token paren, List<Expr> arguments",
                 "Grouping : Expr expression",
                 "Literal  : Any? value",
                 "Unary    : Token operator, Expr right",
@@ -90,10 +91,12 @@ abstract class Generate : DefaultTask() {
             listOf(
                 "Expression : Expr expression",
                 "Print      : Expr expression",
+                "Return     : Token keyword, Expr? value",
                 "Var        : Token name, Expr? initializer",
                 "Block      : List<Stmt> statements",
                 "If         : Expr condition, Stmt thenBranch, Stmt? elseBranch",
                 "While      : Expr condition, Stmt body",
+                "Function   : Token name, List<Token> params, List<Stmt> body",
             ),
         )
     }
@@ -169,7 +172,7 @@ ${fields.joinToString("\n") { field -> "val ${field.first}: ${field.second},".pr
 interface Visitor<R> {
 ${types.joinToString("\n") { type ->
             val typeName = type.split(":")[0].trim()
-            "fun visit${typeName}$baseName(expr: $typeName): R?".prependIndent("    ")
+            "fun visit${typeName}$baseName(${baseName.lowercase()}: $typeName): R?".prependIndent("    ")
         }}
 }
         """.trim()
