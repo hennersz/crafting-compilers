@@ -98,7 +98,7 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
             arguments.add(evaluate(argument))
         }
 
-        if (callee !is LocCallable) {
+        if (callee !is LoxCallable) {
             throw RuntimeError(expr.paren, "Can only call functions and classes.")
         }
 
@@ -150,6 +150,10 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
         }
 
         return evaluate(expr.right)
+    }
+
+    override fun visitFunctionExpr(expr: Expr.Function): Any? {
+        return LoxFunction("Anonymous", expr, environment)
     }
 
     private fun evaluate(expr: Expr): Any? {
@@ -248,8 +252,9 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
     }
 
     override fun visitFunctionStmt(stmt: Stmt.Function): Unit? {
-        val function = LoxFunction(stmt, environment)
-        environment.define(stmt.name.lexeme, function)
+        val name = stmt.name.lexeme
+        val function = LoxFunction(name, stmt.function, environment)
+        environment.define(name, function)
         return null
     }
 }

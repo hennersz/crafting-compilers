@@ -1,9 +1,9 @@
 package net.morti.klox.interpreter
 
-import net.morti.generated.klox.parser.Stmt
+import net.morti.generated.klox.parser.Expr
 import net.morti.klox.environment.Environment
 
-class LoxFunction(private val declaration: Stmt.Function, private val closure: Environment) : LocCallable {
+class LoxFunction(private val name: String?, private val declaration: Expr.Function, private val closure: Environment) : LoxCallable {
     override fun call(
         interpreter: Interpreter,
         arguments: List<Any?>,
@@ -26,6 +26,7 @@ class LoxFunction(private val declaration: Stmt.Function, private val closure: E
     }
 
     override fun toString(): String {
-        return "<fn ${declaration.name.lexeme}>"
+        if (name == null) return "<fn>"
+        return "<fn $name>"
     }
 }

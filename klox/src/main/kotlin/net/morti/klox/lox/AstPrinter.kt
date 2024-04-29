@@ -40,6 +40,10 @@ class AstPrinter : Expr.Visitor<String> {
         TODO("Not yet implemented")
     }
 
+    override fun visitFunctionExpr(expr: Expr.Function): String? {
+        TODO("Not yet implemented")
+    }
+
     private fun parenthesize(
         name: String,
         vararg exprs: Expr,

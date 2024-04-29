@@ -1,9 +1,9 @@
 package net.morti.klox.interpreter.nativeFunctions
 
 import net.morti.klox.interpreter.Interpreter
-import net.morti.klox.interpreter.LocCallable
+import net.morti.klox.interpreter.LoxCallable
 
-class Clock : LocCallable {
+class Clock : LoxCallable {
     override fun call(
         interpreter: Interpreter,
         arguments: List<Any?>,

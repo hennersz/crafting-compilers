@@ -1,6 +1,6 @@
 package net.morti.klox.interpreter
 
-interface LocCallable {
+interface LoxCallable {
     fun call(
         interpreter: Interpreter,
         arguments: List<Any?>,

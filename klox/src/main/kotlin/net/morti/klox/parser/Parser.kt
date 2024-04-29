@@ -26,7 +26,11 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun declaration(): Stmt {
-        if (match(FUN)) return function("function")
+        if (checkType(FUN) && checkNext(IDENTIFIER)) {
+            consume(FUN, "")
+            return function("function")
+        }
+
         if (match(VAR)) return varDeclaration()
 
         return statement()
@@ -34,6 +38,10 @@ class Parser(private val tokens: List<Token>) {
 
     private fun function(kind: String): Stmt.Function {
         val name = consume(IDENTIFIER, "Expect $kind name.")
+        return Stmt.Function(name, functionBody(kind))
+    }
+
+    private fun functionBody(kind: String): Expr.Function {
         consume(LEFT_PAREN, "Expect '(' after $kind name.")
 
         val parameters = ArrayList<Token>()
@@ -52,7 +60,7 @@ class Parser(private val tokens: List<Token>) {
         consume(RIGHT_PAREN, "Expect ')' after parameters.")
         consume(LEFT_BRACE, "Expect '{' before $kind body.")
         val body = block()
-        return Stmt.Function(name, parameters, body)
+        return Expr.Function(parameters, body)
     }
 
     private fun varDeclaration(): Stmt {
@@ -330,6 +338,7 @@ class Parser(private val tokens: List<Token>) {
         if (match(FALSE)) return Expr.Literal(false)
         if (match(TRUE)) return Expr.Literal(true)
         if (match(NIL)) return Expr.Literal(null)
+        if (match(FUN)) return functionBody("function")
 
         if (match(NUMBER, STRING)) return Expr.Literal(previous().literal)
 
@@ -374,6 +383,12 @@ class Parser(private val tokens: List<Token>) {
     private fun checkType(type: TokenType): Boolean {
         if (isAtEnd()) return false
         return peek().type == type
+    }
+
+    private fun checkNext(type: TokenType): Boolean {
+        if (isAtEnd()) return false
+        if (tokens[current + 1].type == EOF) return false
+        return tokens[current + 1].type == type
     }
 
     private fun advance(): Token {

@@ -82,6 +82,7 @@ abstract class Generate : DefaultTask() {
                 "Variable : Token name",
                 "Assign   : Token name, Expr value",
                 "Logical  : Expr left, Token operator, Expr right",
+                "Function : List<Token> params, List<Stmt> body",
             ),
         )
 
@@ -96,7 +97,7 @@ abstract class Generate : DefaultTask() {
                 "Block      : List<Stmt> statements",
                 "If         : Expr condition, Stmt thenBranch, Stmt? elseBranch",
                 "While      : Expr condition, Stmt body",
-                "Function   : Token name, List<Token> params, List<Stmt> body",
+                "Function   : Token name, Expr.Function function",
             ),
         )
     }
