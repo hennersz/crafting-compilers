@@ -390,13 +390,44 @@ class ParserTest {
                         Stmt.Print(Expr.Literal("hello")),
                     ),
                 ),
+                Pair(
+                    arrayListOf(
+                        Token(FUN, "fun", null, 1),
+                        Token(IDENTIFIER, "test", "test", 1),
+                        Token(LEFT_PAREN, "(", null, 1),
+                        Token(RIGHT_PAREN, ")", null, 1),
+                        Token(LEFT_BRACE, "{", null, 1),
+                        Token(RIGHT_BRACE, "}", null, 1),
+                        Token(EOF, "", null, 1),
+                    ),
+                    Stmt.Function(
+                        Token(IDENTIFIER, "test", "test", 1),
+                        Expr.Function(ArrayList<Token>(), ArrayList<Stmt>()),
+                    ),
+                ),
+                Pair(
+                    arrayListOf(
+                        Token(FUN, "fun", null, 1),
+                        Token(IDENTIFIER, "test", "test", 1),
+                        Token(LEFT_PAREN, "(", null, 1),
+                        Token(IDENTIFIER, "a", "a", 1),
+                        Token(RIGHT_PAREN, ")", null, 1),
+                        Token(LEFT_BRACE, "{", null, 1),
+                        Token(RIGHT_BRACE, "}", null, 1),
+                        Token(EOF, "", null, 1),
+                    ),
+                    Stmt.Function(
+                        Token(IDENTIFIER, "test", "test", 1),
+                        Expr.Function(arrayListOf(Token(IDENTIFIER, "a", "a", 1)), ArrayList<Stmt>()),
+                    ),
+                ),
             )
 
         for (testCase in testCases) {
             val (tokens, expected) = testCase
             val (statements, errors) = Parser(tokens).parse()
 
-            assert(errors.isEmpty())
+            assert(errors.isEmpty()) { "$errors" }
             assertEquals(1, statements.size)
             assertEquals(expected, statements[0])
         }
@@ -467,6 +498,7 @@ class ParserTest {
                 ),
             )
 
+        val test = ArrayList<Token>(256)
         for (testCase in testCases) {
             val (tokens, expected) = testCase
             val (statements, errors) = Parser(tokens).parse()
@@ -475,6 +507,45 @@ class ParserTest {
             assertEquals(1, errors.size)
             assertEquals(expected, errors[0])
         }
+    }
+
+    @Test
+    fun testTooManyParams() {
+        val tokens =
+            arrayListOf(
+                Token(FUN, "fun", null, 1),
+                Token(IDENTIFIER, "test", "test", 1),
+                Token(LEFT_PAREN, "(", null, 1),
+            )
+        tokens.addAll(
+            (0..254).map {
+                    i ->
+                Pair(
+                    Token(IDENTIFIER, "param$i", "param$i", 1),
+                    Token(COMMA, ",", ",", 1),
+                )
+            }.flatMap { (k, v) -> listOf(k, v) },
+        )
+        tokens.addAll(
+            arrayListOf(
+                Token(IDENTIFIER, "a", "a", 1),
+                Token(RIGHT_PAREN, ")", null, 1),
+                Token(LEFT_BRACE, "{", null, 1),
+                Token(RIGHT_BRACE, "}", null, 1),
+                Token(EOF, "", null, 1),
+            ),
+        )
+
+        val (statements, errors) = Parser(tokens).parse()
+        assertEquals(1, statements.size)
+        assertEquals(1, errors.size)
+        assertEquals(
+            ParseError(
+                Token(IDENTIFIER, "a", "a", 1),
+                "Can't have more than 255 parameters.",
+            ),
+            errors[0],
+        )
     }
 
     @Test

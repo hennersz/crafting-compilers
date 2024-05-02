@@ -43,11 +43,12 @@ class LoxTest {
                     } else {
                         0
                     }
+                var returnValue = -1
                 val output =
-                    tapSystemOut {
-                        val returnValue = Lox().start(arrayOf(testScript))
-                        assertEquals(expectedReturnValue, returnValue)
+                    tapSystemErrAndOut {
+                        returnValue = Lox().start(arrayOf(testScript))
                     }.trim()
+                assertEquals(expectedReturnValue, returnValue, "Program output: $output")
                 assertEquals(expectedOutput, output)
             }
         }

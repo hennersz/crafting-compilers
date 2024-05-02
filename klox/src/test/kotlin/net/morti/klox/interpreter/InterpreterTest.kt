@@ -346,6 +346,30 @@ class InterpreterTest {
                 2.0
                 """.trimIndent(),
             ),
+            Triple(
+                "Test Function",
+                arrayListOf(
+                    Stmt.Function(
+                        Token(TokenType.IDENTIFIER, "test", "test", 1),
+                        Expr.Function(
+                            ArrayList<Token>(),
+                            arrayListOf(
+                                Stmt.Print(
+                                    Expr.Literal(2.0),
+                                ),
+                            ),
+                        ),
+                    ),
+                    Stmt.Expression(
+                        Expr.Call(
+                            Expr.Variable(Token(TokenType.IDENTIFIER, "test", "test", 1)),
+                            Token(TokenType.LEFT_PAREN, "(", "(", 1),
+                            ArrayList<Expr>(),
+                        ),
+                    ),
+                ),
+                "2.0",
+            ),
         ).map { (name, statements, expected) ->
             dynamicTest(name) {
                 val output =
