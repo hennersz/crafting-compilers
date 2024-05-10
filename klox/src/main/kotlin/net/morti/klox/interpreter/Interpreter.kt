@@ -10,6 +10,7 @@ import net.morti.klox.scanner.TokenType
 class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
     val globals = Environment()
     private var environment = globals
+    private val locals = HashMap<Expr, Int>()
 
     init {
         globals.define("clock", Clock())
@@ -19,6 +20,13 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
         for (stmt in stmts) {
             execute(stmt)
         }
+    }
+
+    fun resolve(
+        expr: Expr,
+        depth: Int,
+    ) {
+        locals[expr] = depth
     }
 
     private fun execute(stmt: Stmt) {
@@ -131,7 +139,19 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
     }
 
     override fun visitVariableExpr(expr: Expr.Variable): Any? {
-        return environment.get(expr.name)
+        return lookUpVariable(expr.name, expr)
+    }
+
+    private fun lookUpVariable(
+        name: Token,
+        expr: Expr,
+    ): Any? {
+        val distance = locals[expr]
+        if (distance != null) {
+            return environment.getAt(distance, name.lexeme)
+        } else {
+            return globals.get(name)
+        }
     }
 
     override fun visitAssignExpr(expr: Expr.Assign): Any? {
