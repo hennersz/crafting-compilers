@@ -9,44 +9,48 @@ import kotlin.collections.HashMap
 
 class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.Visitor<Unit> {
     private val scopes = Stack<MutableMap<String, Boolean>>()
+    private var currentFunction = FunctionType.NONE
+    private val errors = ArrayList<ResolutionError>()
 
-    override fun visitBinaryExpr(expr: Expr.Binary): Unit? {
-        resolve(expr.left)
-        resolve(expr.right)
-        return Unit
+    fun resolve(stmts: List<Stmt>): List<ResolutionError> {
+            try {
+                resolveInner(stmts)
+            } catch (error: ResolutionError) {
+                errors.add(error)
+            }
+        return errors
     }
 
-    override fun visitCallExpr(expr: Expr.Call): Unit? {
-        resolve(expr.callee)
-        for (argument in expr.arguments) {
-            resolve(argument)
+    private fun resolveInner(stmts: List<Stmt>) {
+        stmts.forEach { stmt ->
+            resolveInner(stmt)
         }
-
-        return Unit
     }
 
-    override fun visitGroupingExpr(expr: Expr.Grouping): Unit? {
-        resolve(expr.expression)
-        return Unit
+    private fun resolveInner(stmt: Stmt) {
+        stmt.accept(this)
     }
 
-    override fun visitLiteralExpr(expr: Expr.Literal): Unit? {
-        return Unit
+    private fun resolveInner(expr: Expr) {
+        expr.accept(this)
     }
 
-    override fun visitUnaryExpr(expr: Expr.Unary): Unit? {
-        resolve(expr.right)
-        return Unit
-    }
-
-    override fun visitVariableExpr(expr: Expr.Variable): Unit? {
-        if (!scopes.empty() && !scopes.peek()[expr.name.lexeme]!!) {
-            throw Exception("Can't read local variable in its own initializer")
+    private fun resolveFunction(
+        function: Expr.Function,
+        type: FunctionType,
+    ) {
+        val enclosingFunction = currentFunction
+        currentFunction = type
+        beginScope()
+        for (param in function.params) {
+            declare(param)
+            define(param)
         }
-
-        resolveLocal(expr, expr.name)
-        return Unit
+        resolveInner(function.body)
+        endScope()
+        currentFunction = enclosingFunction
     }
+
 
     private fun resolveLocal(
         expr: Expr,
@@ -55,39 +59,82 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         for (i in scopes.size - 1 downTo 0) {
             if (scopes[i].containsKey(name.lexeme)) {
                 interpreter.resolve(expr, scopes.size - 1 - i)
+                return
             }
         }
     }
 
+
+    override fun visitBinaryExpr(expr: Expr.Binary): Unit? {
+        resolveInner(expr.left)
+        resolveInner(expr.right)
+        return Unit
+    }
+
+    override fun visitCallExpr(expr: Expr.Call): Unit? {
+        resolveInner(expr.callee)
+        for (argument in expr.arguments) {
+            resolveInner(argument)
+        }
+
+        return Unit
+    }
+
+    override fun visitGroupingExpr(expr: Expr.Grouping): Unit? {
+        resolveInner(expr.expression)
+        return Unit
+    }
+
+    override fun visitLiteralExpr(expr: Expr.Literal): Unit? {
+        return Unit
+    }
+
+    override fun visitUnaryExpr(expr: Expr.Unary): Unit? {
+        resolveInner(expr.right)
+        return Unit
+    }
+
+    override fun visitVariableExpr(expr: Expr.Variable): Unit? {
+        if (!scopes.empty() && scopes.peek()[expr.name.lexeme] == false) {
+            throw ResolutionError(expr.name, "Can't read local variable in its own initializer")
+        }
+
+        resolveLocal(expr, expr.name)
+        return Unit
+    }
+
     override fun visitAssignExpr(expr: Expr.Assign): Unit? {
-        resolve(expr.value)
+        resolveInner(expr.value)
         resolveLocal(expr, expr.name)
         return Unit
     }
 
     override fun visitLogicalExpr(expr: Expr.Logical): Unit? {
-        resolve(expr.left)
-        resolve(expr.right)
+        resolveInner(expr.left)
+        resolveInner(expr.right)
         return Unit
     }
 
     override fun visitFunctionExpr(expr: Expr.Function): Unit? {
-        resolveFunction(expr)
+        resolveFunction(expr, FunctionType.FUNCTION)
         return Unit
     }
 
     override fun visitExpressionStmt(stmt: Stmt.Expression): Unit? {
-        resolve(stmt.expression)
+        resolveInner(stmt.expression)
         return Unit
     }
 
     override fun visitPrintStmt(stmt: Stmt.Print): Unit? {
-        resolve(stmt.expression)
+        resolveInner(stmt.expression)
         return Unit
     }
 
     override fun visitReturnStmt(stmt: Stmt.Return): Unit? {
-        if (stmt.value != null) resolve(stmt.value)
+        if (currentFunction == FunctionType.NONE) {
+            throw ResolutionError(stmt.keyword, "Can't return from top level code.")
+        }
+        if (stmt.value != null) resolveInner(stmt.value)
 
         return Unit
     }
@@ -95,7 +142,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     override fun visitVarStmt(stmt: Stmt.Var): Unit? {
         declare(stmt.name)
         if (stmt.initializer != null) {
-            resolve(stmt.initializer)
+            resolveInner(stmt.initializer)
         }
         define(stmt.name)
         return Unit
@@ -103,51 +150,29 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
 
     override fun visitBlockStmt(stmt: Stmt.Block): Unit? {
         beginScope()
-        resolve(stmt.statements)
+        resolveInner(stmt.statements)
         endScope()
         return Unit
     }
 
     override fun visitIfStmt(stmt: Stmt.If): Unit? {
-        resolve(stmt.condition)
-        resolve(stmt.thenBranch)
-        if (stmt.elseBranch != null) resolve(stmt.elseBranch)
+        resolveInner(stmt.condition)
+        resolveInner(stmt.thenBranch)
+        if (stmt.elseBranch != null) resolveInner(stmt.elseBranch)
         return Unit
     }
 
     override fun visitWhileStmt(stmt: Stmt.While): Unit? {
-        resolve(stmt.condition)
-        resolve(stmt.body)
+        resolveInner(stmt.condition)
+        resolveInner(stmt.body)
         return Unit
     }
 
     override fun visitFunctionStmt(stmt: Stmt.Function): Unit? {
         declare(stmt.name)
         define(stmt.name)
-        resolveFunction(stmt.function)
+        resolveFunction(stmt.function, FunctionType.FUNCTION)
         return Unit
-    }
-
-    private fun resolveFunction(function: Expr.Function) {
-        beginScope()
-        for (param in function.params) {
-            declare(param)
-            define(param)
-        }
-        resolve(function.body)
-        endScope()
-    }
-
-    private fun resolve(stmts: List<Stmt>) {
-        stmts.forEach { stmt -> resolve(stmt) }
-    }
-
-    private fun resolve(stmt: Stmt) {
-        stmt.accept(this)
-    }
-
-    private fun resolve(expr: Expr) {
-        expr.accept(this)
     }
 
     private fun beginScope() {
@@ -160,7 +185,12 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
 
     private fun declare(name: Token) {
         if (scopes.empty()) return
-        scopes.peek()[name.lexeme] = false
+        val scope = scopes.peek()
+        if (scope.containsKey(name.lexeme)) {
+            throw ResolutionError(name, "Already a variable with this name in scope")
+        }
+
+        scope[name.lexeme] = false
     }
 
     private fun define(name: Token) {
