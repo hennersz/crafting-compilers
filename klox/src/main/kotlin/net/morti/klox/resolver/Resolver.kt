@@ -13,11 +13,11 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     private val errors = ArrayList<ResolutionError>()
 
     fun resolve(stmts: List<Stmt>): List<ResolutionError> {
-            try {
-                resolveInner(stmts)
-            } catch (error: ResolutionError) {
-                errors.add(error)
-            }
+        try {
+            resolveInner(stmts)
+        } catch (error: ResolutionError) {
+            errors.add(error)
+        }
         return errors
     }
 
@@ -51,7 +51,6 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         currentFunction = enclosingFunction
     }
 
-
     private fun resolveLocal(
         expr: Expr,
         name: Token,
@@ -63,7 +62,6 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
             }
         }
     }
-
 
     override fun visitBinaryExpr(expr: Expr.Binary): Unit? {
         resolveInner(expr.left)
