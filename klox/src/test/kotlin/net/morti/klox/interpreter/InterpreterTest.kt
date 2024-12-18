@@ -3,6 +3,7 @@ package net.morti.klox.interpreter
 import com.github.stefanbirkner.systemlambda.SystemLambda.*
 import net.morti.generated.klox.parser.Expr
 import net.morti.generated.klox.parser.Stmt
+import net.morti.klox.resolver.Resolver
 import net.morti.klox.scanner.Token
 import net.morti.klox.scanner.TokenType
 import org.junit.jupiter.api.DynamicTest
@@ -372,9 +373,13 @@ class InterpreterTest {
             ),
         ).map { (name, statements, expected) ->
             dynamicTest(name) {
+                val interpreter = Interpreter()
+                val resolver = Resolver(interpreter)
+                val errors = resolver.resolve(statements)
+                assert(errors.isEmpty())
                 val output =
                     tapSystemOut {
-                        Interpreter().interpret(statements)
+                        interpreter.interpret(statements)
                     }
 
                 assertEquals(expected, output.trim())

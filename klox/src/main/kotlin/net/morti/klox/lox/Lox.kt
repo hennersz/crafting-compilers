@@ -3,6 +3,7 @@ package net.morti.klox.lox
 import net.morti.klox.interpreter.Interpreter
 import net.morti.klox.interpreter.RuntimeError
 import net.morti.klox.parser.Parser
+import net.morti.klox.resolver.Resolver
 import net.morti.klox.scanner.Scanner
 import net.morti.klox.scanner.Token
 import net.morti.klox.scanner.TokenType
@@ -70,8 +71,19 @@ class Lox {
             return
         }
 
+        val interpreter = Interpreter()
+        val resolver = Resolver(interpreter)
+        val resolutionErrors = resolver.resolve(statements)
+
+        if (resolutionErrors.isNotEmpty()) {
+            for (resolutionError in resolutionErrors) {
+                error(resolutionError.token, resolutionError.message)
+            }
+            return
+        }
+
         try {
-            Interpreter().interpret(statements)
+            interpreter.interpret(statements)
         } catch (e: RuntimeError) {
             error(e.token, e.message.orEmpty())
         }
