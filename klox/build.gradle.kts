@@ -3,7 +3,7 @@ import java.io.PrintWriter
 import java.nio.file.Files
 
 plugins {
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.1.0"
     application
     jacoco
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
@@ -11,10 +11,6 @@ plugins {
 
 group = "net.morti"
 version = "1.0-SNAPSHOT"
-
-repositories {
-    mavenCentral()
-}
 
 sourceSets.main {
     java.srcDir("build/generated/src/kotlin")
@@ -32,6 +28,9 @@ tasks.register<Generate>("generate") {
 }
 
 tasks.compileKotlin {
+    compilerOptions {
+        freeCompilerArgs.set(listOf("-Xjsr305=strict"))
+    }
     dependsOn(tasks.getByName("generate"))
 }
 
@@ -56,11 +55,22 @@ tasks.jacocoTestReport {
 }
 
 kotlin { // Extension for easy setup
-    jvmToolchain(17) // Target version of generated JVM bytecode. See 7️⃣
+    jvmToolchain(21) // Target version of generated JVM bytecode. See 7️⃣
 }
 
 application {
     mainClass.set("MainKt") // The main class of the application
+}
+
+tasks.withType<AbstractArchiveTask>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+}
+
+configurations.all {
+    resolutionStrategy {
+        failOnNonReproducibleResolution()
+    }
 }
 
 abstract class Generate : DefaultTask() {
