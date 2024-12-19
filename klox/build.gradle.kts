@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileWriter
 import java.io.PrintWriter
 import java.nio.file.Files
@@ -29,6 +28,9 @@ tasks.register<Generate>("generate") {
 }
 
 tasks.compileKotlin {
+    compilerOptions {
+        freeCompilerArgs.set(listOf("-Xjsr305=strict"))
+    }
     dependsOn(tasks.getByName("generate"))
 }
 
@@ -58,12 +60,6 @@ kotlin { // Extension for easy setup
 
 application {
     mainClass.set("MainKt") // The main class of the application
-}
-
-tasks.withType<KotlinCompile> {
-    compilerOptions {
-        freeCompilerArgs.set(listOf("-Xjsr305=strict"))
-    }
 }
 
 tasks.withType<AbstractArchiveTask>().configureEach {
