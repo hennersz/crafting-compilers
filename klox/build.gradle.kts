@@ -1,7 +1,7 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileWriter
 import java.io.PrintWriter
 import java.nio.file.Files
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "2.1.0"
@@ -12,7 +12,6 @@ plugins {
 
 group = "net.morti"
 version = "1.0-SNAPSHOT"
-
 
 sourceSets.main {
     java.srcDir("build/generated/src/kotlin")
@@ -60,7 +59,6 @@ kotlin { // Extension for easy setup
 application {
     mainClass.set("MainKt") // The main class of the application
 }
-
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
