@@ -17,10 +17,10 @@ sourceSets.main {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test:2.1.0"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
     testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.4")
 }
 
 tasks.register<Generate>("generate") {
@@ -54,7 +54,8 @@ tasks.jacocoTestReport {
     }
 }
 
-kotlin { // Extension for easy setup
+kotlin {
+    // Extension for easy setup
     jvmToolchain(21) // Target version of generated JVM bytecode. See 7️⃣
 }
 
@@ -178,8 +179,8 @@ ${fields.joinToString("\n") { field -> "val ${field.first}: ${field.second},".pr
     private fun defineVisitor(
         baseName: String,
         types: List<String>,
-    ): String {
-        return """
+    ): String =
+        """
 interface Visitor<R> {
 ${types.joinToString("\n") { type ->
             val typeName = type.split(":")[0].trim()
@@ -187,5 +188,4 @@ ${types.joinToString("\n") { type ->
         }}
 }
         """.trim()
-    }
 }
