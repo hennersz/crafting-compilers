@@ -33,6 +33,6 @@ jobs:
   
               [1]: https://github.com/peter-evans/create-pull-request
             branch: update-flakes/${{ github.run_id }}-${{ github.run_attempt }}
-      - run: "gh pr merge --auto --merge ${{ steps.pr.outputs.pull-request-number }}"
+      - run: "gh pr merge --auto --merge --delete-branch ${{ steps.pr.outputs.pull-request-number }}"
         env:
           GH_TOKEN: ${{ github.token }}
