@@ -15,11 +15,26 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 jobs:
   build-klox:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@main
-    - run: nix -L build .
+
+    - uses: nixbuild/nix-quick-install-action@v29
+
+    - name: Restore and save Nix store
+      uses: nix-community/cache-nix-action@v5
+      with:
+        primary-key: build-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock', 'klox/gradle/wrapper/verification-metadata.xml') }}
+        # do purge caches
+        purge: true
+        # purge all versions of the cache
+        purge-prefixes: build-${{ runner.os }}-
+        # created more than 0 seconds ago relative to the start of the `Post Restore` phase
+        purge-created: 0
+        # except the version with the `primary-key`, if it exists
+        purge-primary-key: never
+    - run: nix -L build --rebuild --repair .
