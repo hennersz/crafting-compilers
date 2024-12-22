@@ -21,6 +21,7 @@ jobs:
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
+        id: pr
         with:
             token: ${{ steps.generate-token.outputs.token }}
             commit-message: "chore: update flakes"
@@ -32,3 +33,6 @@ jobs:
   
               [1]: https://github.com/peter-evans/create-pull-request
             branch: update-flakes/${{ github.run_id }}-${{ github.run_attempt }}
+      - run: "gh pr merge --auto --merge ${{ steps.pr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
