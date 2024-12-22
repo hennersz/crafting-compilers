@@ -12,7 +12,8 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         javaVersion = 21;
-        version = self.shortRev or "dirty";
+        semver = nixpkgs.lib.strings.trim (builtins.readFile ./version);
+        version = if (self ? dirtyShortRev) then "${semver}-${self.dirtyShortRev}" else semver;
         overlays = [
           (final: prev: rec {
             jdk = prev."jdk${toString javaVersion}";
