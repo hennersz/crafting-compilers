@@ -496,6 +496,16 @@ class ParserTest {
                         "Expected '}' after block.",
                     ),
                 ),
+                Pair(
+                    arrayListOf(
+                        Token(FUN, "fun", null, 1),
+                        Token(EOF, "", null, 1),
+                    ),
+                    ParseError(
+                        Token(EOF, "", null, 1),
+                        "Expect '(' after function name.",
+                    ),
+                ),
             )
 
         val test = ArrayList<Token>(256)
@@ -510,6 +520,57 @@ class ParserTest {
     }
 
     @Test
+    fun testTooManyArgs() {
+        val tokens =
+            arrayListOf(
+                Token(FUN, "fun", null, 1),
+                Token(IDENTIFIER, "test", "test", 1),
+                Token(LEFT_PAREN, "(", null, 1),
+            )
+        tokens.addAll(
+            arrayListOf(
+                Token(IDENTIFIER, "a", "a", 1),
+                Token(RIGHT_PAREN, ")", null, 1),
+                Token(LEFT_BRACE, "{", null, 1),
+                Token(PRINT, "print", null, 1),
+                Token(STRING, "hello", "hello", 1),
+                Token(SEMICOLON, ";", null, 1),
+                Token(RIGHT_BRACE, "}", null, 1),
+                Token(IDENTIFIER, "test", "test", 1),
+                Token(LEFT_PAREN, "(", null, 1),
+            ),
+        )
+        tokens.addAll(
+            (0..254)
+                .map { i ->
+                    Pair(
+                        Token(IDENTIFIER, "param$i", "param$i", 1),
+                        Token(COMMA, ",", ",", 1),
+                    )
+                }.flatMap { (k, v) -> listOf(k, v) },
+        )
+        tokens.addAll(
+            arrayListOf(
+                Token(IDENTIFIER, "a", "a", 1),
+                Token(RIGHT_PAREN, ")", null, 1),
+                Token(SEMICOLON, ";", null, 1),
+                Token(EOF, "", null, 1),
+            ),
+        )
+
+        val (statements, errors) = Parser(tokens).parse()
+        assertEquals(2, statements.size)
+        assertEquals(1, errors.size)
+        assertEquals(
+            ParseError(
+                Token(IDENTIFIER, "a", "a", 1),
+                "Can't have more than 255 arguments.",
+            ),
+            errors[0],
+        )
+    }
+
+    @Test
     fun testTooManyParams() {
         val tokens =
             arrayListOf(
@@ -518,13 +579,13 @@ class ParserTest {
                 Token(LEFT_PAREN, "(", null, 1),
             )
         tokens.addAll(
-            (0..254).map {
-                    i ->
-                Pair(
-                    Token(IDENTIFIER, "param$i", "param$i", 1),
-                    Token(COMMA, ",", ",", 1),
-                )
-            }.flatMap { (k, v) -> listOf(k, v) },
+            (0..254)
+                .map { i ->
+                    Pair(
+                        Token(IDENTIFIER, "param$i", "param$i", 1),
+                        Token(COMMA, ",", ",", 1),
+                    )
+                }.flatMap { (k, v) -> listOf(k, v) },
         )
         tokens.addAll(
             arrayListOf(

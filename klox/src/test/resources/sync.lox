@@ -1,0 +1,30 @@
+var a = return;
+var a = 1;
+
+var a = return
+fun test() {
+    print "hello";
+}
+
+var a = return
+for (var b = 1; b < 2; b = b + 1) {
+    print b;
+}
+
+var a = return
+if (a == 1) {
+    print "hello";
+}
+
+var a = return
+while (a == 1) {
+    print "hello";
+}
+
+var a = return
+print "hello";
+
+fun test2() {
+    var a = return
+    return "hello";
+}
