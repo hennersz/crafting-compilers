@@ -10,9 +10,10 @@ buildGradleApplication {
   src = ./klox;
   nativeBuildInputs = [pkgs.libgcc];
   meta = with lib; {
-    description = "Hello World Application";
+    description = "A lox interpreter written in kotlin";
     longDescription = ''
-      Not much to say here...
+        An implementation of a lox interpreter, written in kotlin and
+        based on the book https://craftinginterpreters.com
     '';
     sourceProvenance = with sourceTypes; [
       fromSource
