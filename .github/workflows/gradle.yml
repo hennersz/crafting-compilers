@@ -33,3 +33,7 @@ jobs:
       with:
         arguments: build
         build-root-directory: klox
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
