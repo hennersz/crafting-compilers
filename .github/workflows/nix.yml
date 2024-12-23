@@ -14,7 +14,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
   actions: write
 
 jobs:
@@ -28,13 +28,19 @@ jobs:
     - name: Restore and save Nix store
       uses: nix-community/cache-nix-action@v5
       with:
-        primary-key: build-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock', 'klox/gradle/wrapper/verification-metadata.xml') }}
-        # do purge caches
+        primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock', 'klox/gradle/wrapper/verification-metadata.xml', 'version') }}
+        restore-prefixes-first-match: nix-${{ runner.os }}-
         purge: true
         # purge all versions of the cache
-        purge-prefixes: build-${{ runner.os }}-
-        # created more than 0 seconds ago relative to the start of the `Post Restore` phase
-        purge-created: 0
+        purge-prefixes: nix-${{ runner.os }}-
+        # created more than 3600 seconds ago relative to the start of the `Post Restore` phase
+        purge-created: 3600
         # except the version with the `primary-key`, if it exists
         purge-primary-key: never
-    - run: nix -L build --rebuild --repair .
+    - run: |
+        echo "-$(git rev-parse --short HEAD)" >> version
+        git add .
+        git -c user.name="nix" -c user.email="nix@example.com" commit -m "fudge version"
+      if: github.ref != 'refs/heads/master'
+
+    - run: nix -L build .
