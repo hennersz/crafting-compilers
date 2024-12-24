@@ -1,5 +1,7 @@
 package net.morti.klox.scanner
 
+import java.util.*
+
 class Token(
     val type: TokenType,
     val lexeme: String,
@@ -17,11 +19,5 @@ class Token(
                 (other.line == line)
         )
 
-    override fun hashCode(): Int {
-        var result = type.hashCode()
-        result = 31 * result + lexeme.hashCode()
-        result = 31 * result + literal.hashCode()
-        result = 31 * result + line.hashCode()
-        return result
-    }
+    override fun hashCode(): Int = Objects.hash(type, lexeme, literal, line)
 }
