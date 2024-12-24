@@ -7,7 +7,9 @@ import net.morti.klox.scanner.TokenType
 import net.morti.klox.scanner.TokenType.*
 import kotlin.collections.ArrayList
 
-class Parser(private val tokens: List<Token>) {
+class Parser(
+    private val tokens: List<Token>,
+) {
     private var current: Int = 0
     private val errors = ArrayList<ParseError>()
 
@@ -180,7 +182,12 @@ class Parser(private val tokens: List<Token>) {
         val statements = ArrayList<Stmt>()
 
         while (!checkType(RIGHT_BRACE) && !isAtEnd()) {
-            statements.add(declaration())
+            try {
+                statements.add(declaration())
+            } catch (e: ParseError) {
+                errors.add(e)
+                synchronize()
+            }
         }
 
         consume(RIGHT_BRACE, "Expected '}' after block.")
@@ -199,9 +206,7 @@ class Parser(private val tokens: List<Token>) {
         return Stmt.Expression(expr)
     }
 
-    private fun expression(): Expr {
-        return assignment()
-    }
+    private fun expression(): Expr = assignment()
 
     private fun assignment(): Expr {
         val expr = or()
@@ -365,9 +370,7 @@ class Parser(private val tokens: List<Token>) {
     private fun parseError(
         token: Token,
         message: String,
-    ): ParseError {
-        return ParseError(token, message)
-    }
+    ): ParseError = ParseError(token, message)
 
     private fun match(vararg types: TokenType): Boolean {
         for (type in types) {
@@ -396,17 +399,11 @@ class Parser(private val tokens: List<Token>) {
         return previous()
     }
 
-    private fun isAtEnd(): Boolean {
-        return peek().type == EOF
-    }
+    private fun isAtEnd(): Boolean = peek().type == EOF
 
-    private fun peek(): Token {
-        return tokens[current]
-    }
+    private fun peek(): Token = tokens[current]
 
-    private fun previous(): Token {
-        return tokens[current - 1]
-    }
+    private fun previous(): Token = tokens[current - 1]
 
     private fun synchronize() {
         advance()
