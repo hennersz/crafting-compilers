@@ -7,11 +7,9 @@ import net.morti.klox.interpreter.nativeFunctions.Clock
 import net.morti.klox.scanner.Token
 import net.morti.klox.scanner.TokenType
 
-class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
-    private class Variable(
-        val depth: Int,
-        val slot: Int,
-    )
+class Interpreter :
+    Expr.Visitor<Any>,
+    Stmt.Visitor<Unit> {
     private val globals = Environment()
     private var environment = globals
     private val locals = HashMap<Expr, Int>()
@@ -121,13 +119,18 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
         return callee.call(this, arguments)
     }
 
-    override fun visitGroupingExpr(expr: Expr.Grouping): Any? {
-        return evaluate(expr.expression)
+    override fun visitGetExpr(expr: Expr.Get): Any? {
+        val obj = evaluate(expr.obj)
+        if (obj is LoxInstance) {
+            return obj.get(expr.name)
+        }
+
+        throw RuntimeError(expr.name, "Only instances have properties.")
     }
 
-    override fun visitLiteralExpr(expr: Expr.Literal): Any? {
-        return expr.value
-    }
+    override fun visitGroupingExpr(expr: Expr.Grouping): Any? = evaluate(expr.expression)
+
+    override fun visitLiteralExpr(expr: Expr.Literal): Any? = expr.value
 
     override fun visitUnaryExpr(expr: Expr.Unary): Any? {
         val right = evaluate(expr.right)
@@ -142,9 +145,7 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
         }
     }
 
-    override fun visitVariableExpr(expr: Expr.Variable): Any? {
-        return lookUpVariable(expr.name, expr)
-    }
+    override fun visitVariableExpr(expr: Expr.Variable): Any? = lookUpVariable(expr.name, expr)
 
     private fun lookUpVariable(
         name: Token,
@@ -182,13 +183,23 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
         return evaluate(expr.right)
     }
 
-    override fun visitFunctionExpr(expr: Expr.Function): Any? {
-        return LoxFunction("Anonymous", expr, environment)
+    override fun visitSetExpr(expr: Expr.Set): Any? {
+        val obj = evaluate(expr.obj)
+
+        if (obj !is LoxInstance) {
+            throw RuntimeError(expr.name, "Only instances have fields.")
+        }
+
+        val value = evaluate(expr.value)
+        obj.set(expr.name, value)
+        return value
     }
 
-    private fun evaluate(expr: Expr): Any? {
-        return expr.accept(this)
-    }
+    override fun visitThisExpr(expr: Expr.This): Any? = lookUpVariable(expr.keyword, expr)
+
+    override fun visitFunctionExpr(expr: Expr.Function): Any? = LoxFunction("Anonymous", expr, environment, false)
+
+    private fun evaluate(expr: Expr): Any? = expr.accept(this)
 
     private fun isTruthy(any: Any?): Boolean {
         if (any == null) return false
@@ -283,8 +294,22 @@ class Interpreter : Expr.Visitor<Any>, Stmt.Visitor<Unit> {
 
     override fun visitFunctionStmt(stmt: Stmt.Function): Unit? {
         val name = stmt.name.lexeme
-        val function = LoxFunction(name, stmt.function, environment)
+        val function = LoxFunction(name, stmt.function, environment, false)
         environment.define(name, function)
         return null
+    }
+
+    override fun visitClassStmt(stmt: Stmt.Class): Unit? {
+        environment.define(stmt.name.lexeme, null)
+
+        val methods = HashMap<String, LoxFunction>()
+        for (method in stmt.methods) {
+            val function = LoxFunction(method.name.lexeme, method.function, environment, method.name.lexeme == "init")
+            methods[method.name.lexeme] = function
+        }
+
+        val klass = LoxClass(stmt.name.lexeme, methods)
+        environment.assign(stmt.name, klass)
+        return Unit
     }
 }

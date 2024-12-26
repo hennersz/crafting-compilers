@@ -503,7 +503,7 @@ class ParserTest {
                     ),
                     ParseError(
                         Token(EOF, "", null, 1),
-                        "Expect '(' after function name.",
+                        "Expect '(' after lambda name.",
                     ),
                 ),
             )

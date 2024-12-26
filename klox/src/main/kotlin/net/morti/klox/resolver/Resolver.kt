@@ -7,9 +7,13 @@ import net.morti.klox.scanner.Token
 import java.util.*
 import kotlin.collections.HashMap
 
-class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.Visitor<Unit> {
+class Resolver(
+    private val interpreter: Interpreter,
+) : Expr.Visitor<Unit>,
+    Stmt.Visitor<Unit> {
     private val scopes = Stack<MutableMap<String, Boolean>>()
     private var currentFunction = FunctionType.NONE
+    private var currentClass = ClassType.NONE
     private val errors = ArrayList<ResolutionError>()
 
     fun resolve(stmts: List<Stmt>): List<ResolutionError> {
@@ -78,14 +82,17 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         return Unit
     }
 
+    override fun visitGetExpr(expr: Expr.Get): Unit? {
+        resolveInner(expr.obj)
+        return null
+    }
+
     override fun visitGroupingExpr(expr: Expr.Grouping): Unit? {
         resolveInner(expr.expression)
         return Unit
     }
 
-    override fun visitLiteralExpr(expr: Expr.Literal): Unit? {
-        return Unit
-    }
+    override fun visitLiteralExpr(expr: Expr.Literal): Unit? = Unit
 
     override fun visitUnaryExpr(expr: Expr.Unary): Unit? {
         resolveInner(expr.right)
@@ -113,6 +120,20 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         return Unit
     }
 
+    override fun visitSetExpr(expr: Expr.Set): Unit? {
+        resolveInner(expr.value)
+        resolveInner(expr.obj)
+        return Unit
+    }
+
+    override fun visitThisExpr(expr: Expr.This): Unit? {
+        if (currentClass == ClassType.NONE) {
+            throw ResolutionError(expr.keyword, "Cant' use 'this' outside of a class.")
+        }
+        resolveLocal(expr, expr.keyword)
+        return Unit
+    }
+
     override fun visitFunctionExpr(expr: Expr.Function): Unit? {
         resolveFunction(expr, FunctionType.FUNCTION)
         return Unit
@@ -132,7 +153,12 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         if (currentFunction == FunctionType.NONE) {
             throw ResolutionError(stmt.keyword, "Can't return from top level code.")
         }
-        if (stmt.value != null) resolveInner(stmt.value)
+        if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER) {
+                throw ResolutionError(stmt.keyword, "Can't return a value from an initializer")
+            }
+            resolveInner(stmt.value)
+        }
 
         return Unit
     }
@@ -170,6 +196,28 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         declare(stmt.name)
         define(stmt.name)
         resolveFunction(stmt.function, FunctionType.FUNCTION)
+        return Unit
+    }
+
+    override fun visitClassStmt(stmt: Stmt.Class): Unit? {
+        val enclosingClass = currentClass
+        currentClass = ClassType.CLASS
+        declare(stmt.name)
+        define(stmt.name)
+
+        beginScope()
+        scopes.peek()["this"] = true
+        for (method in stmt.methods) {
+            var declaration = FunctionType.METHOD
+            if (method.name.lexeme == "init") {
+                declaration = FunctionType.INITIALIZER
+            }
+
+            resolveFunction(method.function, declaration)
+        }
+        endScope()
+
+        currentClass = enclosingClass
         return Unit
     }
 
