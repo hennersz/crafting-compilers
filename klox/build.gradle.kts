@@ -57,7 +57,7 @@ tasks.jacocoTestReport {
 
 kotlin {
     // Extension for easy setup
-    jvmToolchain(23) // Target version of generated JVM bytecode. See 7️⃣
+    jvmToolchain(21) // Target version of generated JVM bytecode. See 7️⃣
 }
 
 application {
