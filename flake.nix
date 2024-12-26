@@ -16,7 +16,7 @@
         version = if (self ? dirtyShortRev) then "${semver}-${self.dirtyShortRev}" else semver;
         overlays = [
           (final: prev: rec {
-            jdk = prev."jdk${toString javaVersion}";
+            jdk = prev.graalvm-ce;
             java = jdk;
             gradle = prev.gradle.override { java = jdk; };
             kotlin = prev.kotlin.override { jre = jdk; };
@@ -34,19 +34,29 @@
           inherit pkgs inputs;
           modules = [
             ({pkgs, ...}: {
-              env.JAVA_HOME = "${jdk}/lib/openjdk";
+              env.JAVA_HOME = "${jdk}";
               packages = [ kotlin jdk coreutils gradle updateVerificationMetadata ];
               enterShell = ''
                 rm -rf $DEVENV_ROOT/.lib
                 mkdir -p $DEVENV_ROOT/.lib
-                ln -sf ${jdk}/lib/openjdk/ $DEVENV_ROOT/.lib/jdk
-              ''; 
+                ln -sf ${jdk} $DEVENV_ROOT/.lib/jdk
+              '';
             })
           ];
         };
 
         packages = rec { 
           klox = pkgs.callPackage ./package.nix { inherit version; };
+          klox-native = (pkgs.callPackage ./package.nix { inherit version; buildTask = "nativeCompile";}).overrideDerivation (oldAttrs: {
+            installPhase = ''
+              runHook preInstall
+              pushd build/native/nativeCompile
+              mkdir -p $out/bin
+              cp klox $out/bin/klox
+              popd
+              runHook postInstall
+            '';
+           });
           default = klox;
         };
       }

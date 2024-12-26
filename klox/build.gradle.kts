@@ -7,6 +7,7 @@ plugins {
     application
     jacoco
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+    id("org.graalvm.buildtools.native") version "0.10.4"
 }
 
 group = "net.morti"
@@ -56,7 +57,7 @@ tasks.jacocoTestReport {
 
 kotlin {
     // Extension for easy setup
-    jvmToolchain(21) // Target version of generated JVM bytecode. See 7️⃣
+    jvmToolchain(23) // Target version of generated JVM bytecode. See 7️⃣
 }
 
 application {
@@ -85,15 +86,17 @@ abstract class Generate : DefaultTask() {
             dir,
             "Expr",
             listOf(
+                "Assign   : Token name, Expr value",
                 "Binary   : Expr left, Token operator, Expr right",
                 "Call     : Expr callee, Token paren, List<Expr> arguments",
+                "Function : List<Token> params, List<Stmt> body",
+                "Get      : Expr obj, Token name",
                 "Grouping : Expr expression",
                 "Literal  : Any? value",
+                "Logical  : Expr left, Token operator, Expr right",
+                "Set      : Expr obj, Token name, Expr value",
                 "Unary    : Token operator, Expr right",
                 "Variable : Token name",
-                "Assign   : Token name, Expr value",
-                "Logical  : Expr left, Token operator, Expr right",
-                "Function : List<Token> params, List<Stmt> body",
             ),
         )
 
@@ -109,6 +112,7 @@ abstract class Generate : DefaultTask() {
                 "If         : Expr condition, Stmt thenBranch, Stmt? elseBranch",
                 "While      : Expr condition, Stmt body",
                 "Function   : Token name, Expr.Function function",
+                "Class      : Token name, List<Stmt.Function> methods",
             ),
         )
     }
