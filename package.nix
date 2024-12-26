@@ -2,9 +2,11 @@
   lib,
   version,
   buildGradleApplication,
-  pkgs
+  pkgs,
+  buildTask ? "installDist"
 }:
 buildGradleApplication {
+  inherit buildTask;
   pname = "klox";
   version = version;
   src = ./klox;

@@ -7,6 +7,7 @@ plugins {
     application
     jacoco
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+    id("org.graalvm.buildtools.native") version "0.10.4"
 }
 
 group = "net.morti"
@@ -56,7 +57,7 @@ tasks.jacocoTestReport {
 
 kotlin {
     // Extension for easy setup
-    jvmToolchain(21) // Target version of generated JVM bytecode. See 7️⃣
+    jvmToolchain(23) // Target version of generated JVM bytecode. See 7️⃣
 }
 
 application {

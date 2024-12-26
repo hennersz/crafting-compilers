@@ -28,13 +28,12 @@ jobs:
     - name: Restore and save Nix store
       uses: nix-community/cache-nix-action@v5
       with:
-        primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock', 'klox/gradle/wrapper/verification-metadata.xml', 'version') }}
-        restore-prefixes-first-match: nix-${{ runner.os }}-
+        primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock', 'klox/gradle/wrapper/verification-metadata.xml') }}
         purge: true
         # purge all versions of the cache
         purge-prefixes: nix-${{ runner.os }}-
         # created more than 3600 seconds ago relative to the start of the `Post Restore` phase
-        purge-created: 3600
+        purge-created: 0
         # except the version with the `primary-key`, if it exists
         purge-primary-key: never
     - run: |
