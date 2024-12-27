@@ -27,6 +27,24 @@
         pkgs = import nixpkgs {
           inherit system overlays;
         };
+
+        test-klox = import ./tests/test.nix {
+            inherit (pkgs) bats writeShellApplication parallel;
+            inherit (self.packages."${system}") klox;
+        };
+
+        generate = import ./tests/generate.nix {
+            inherit (pkgs) writeShellApplication ;
+        };
+
+        klox-check = pkgs.runCommandLocal "klox-check" rec {
+            src = ./.;
+            nativeBuildInputs = with pkgs; [test-klox];
+        } ''
+          export ROOT=$src
+          export OUT_DIR=$out
+          test-klox
+        '';
       in
       with pkgs;
       {
@@ -35,11 +53,13 @@
           modules = [
             ({pkgs, ...}: {
               env.JAVA_HOME = "${jdk}";
-              packages = [ kotlin jdk coreutils gradle updateVerificationMetadata ];
+              packages = [ kotlin jdk coreutils gradle updateVerificationMetadata self.packages."${system}".klox test-klox bats generate];
               enterShell = ''
                 rm -rf $DEVENV_ROOT/.lib
                 mkdir -p $DEVENV_ROOT/.lib
                 ln -sf ${jdk} $DEVENV_ROOT/.lib/jdk
+                export ROOT=$DEVENV_ROOT
+                export OUT_DIR=$ROOT/tests/reports
               '';
             })
           ];
@@ -59,6 +79,8 @@
            });
           default = klox;
         };
+
+        checks = { inherit klox-check;};
       }
     );
 }
