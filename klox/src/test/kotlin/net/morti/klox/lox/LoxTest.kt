@@ -32,7 +32,7 @@ class LoxTest {
 
     @TestFactory
     fun runTestFiles(): List<DynamicTest> =
-        Paths.get("src/test/resources").listDirectoryEntries("*.lox").map { path ->
+        Paths.get("../tests/resources").listDirectoryEntries("*.lox").map { path ->
             dynamicTest(path.fileName.toString()) {
                 val testScript = path.toFile().absolutePath
                 val expectedOutput = Path(testScript.replace(".lox", ".out")).readText().trim()
