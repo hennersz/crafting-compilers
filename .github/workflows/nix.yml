@@ -42,7 +42,6 @@ jobs:
         echo "-$(git rev-parse --short HEAD)" >> version
         git add .
         git -c user.name="nix" -c user.email="nix@example.com" commit -m "fudge version"
-      if: github.ref != 'refs/heads/master'
 
     - run: nix -L build .
     - name: Check klox
