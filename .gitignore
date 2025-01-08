@@ -18,7 +18,9 @@ bin
 .vscode
 .devenv
 .lib
+.envrc
 
 result
 
 tests/reports
+
