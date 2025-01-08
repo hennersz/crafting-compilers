@@ -45,8 +45,7 @@ jobs:
       if: github.ref != 'refs/heads/master'
 
     - run: nix -L build .
-    - name: Test Klox
+    - name: Check klox
       run: |
-        mkdir -p tests/reports
         nix develop --no-pure-eval --command \
-          test-klox
+          check
