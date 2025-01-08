@@ -33,12 +33,13 @@ jobs:
       - run: |
           git config --global user.email "hennersz@users.noreply.github.com"
           git config --global user.name "lox-ci"
-          git config --global credential.helper store
-          echo "https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com" > ~/.git-credentials
-          git config --global url.https://github.com/.insteadOf ssh://git@github.com:
-          git config --global url.https://github.com/.insteadOf git@github.com:
       - name: Commit and tag
         run: |
           nix develop --no-pure-eval --command \
             release
-          git push && git push --tags
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ steps.generate-token.outputs.token }}
+          tags: true
