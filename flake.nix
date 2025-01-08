@@ -52,7 +52,7 @@
         devShells.default = std-dev-env.lib.base {
           inherit pkgs inputs;
           env.JAVA_HOME = "${jdk}";
-          packages = [ kotlin jdk coreutils gradle updateVerificationMetadata self.packages."${system}".klox test-klox bats generate git];
+          packages = [ kotlin jdk coreutils gradle updateVerificationMetadata self.packages."${system}".klox test-klox bats generate git convco ];
           scripts = {
             tests.exec = ''
                 unit-tests
@@ -70,6 +70,14 @@
 
             lint.exec = ''
                 gradle -p $ROOT/klox ktlintCheck
+            '';
+
+            release.exec = ''
+                convco -C $ROOT version --bump > $ROOT/version
+                convco -C $ROOT changelog --unreleased v$(cat $ROOT/version) > $ROOT/CHANGELOG.md
+                git add .
+                git commit -m "chore(release): $(cat $ROOT/version)"
+                git tag v$(cat $ROOT/version) -m "chore(release): $(cat $ROOT/version)"
             '';
           };
           enterShell = ''
