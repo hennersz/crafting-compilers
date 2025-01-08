@@ -13,8 +13,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         javaVersion = 21;
-        semver = nixpkgs.lib.strings.trim (builtins.readFile ./version);
-        version = if (self ? dirtyShortRev) then "${semver}-${self.dirtyShortRev}" else semver;
+        version = nixpkgs.lib.strings.trim (builtins.readFile ./version);
         overlays = [
           (final: prev: rec {
             jdk = prev.graalvm-ce;
@@ -73,7 +72,7 @@
             '';
 
             release.exec = ''
-                convco -C $ROOT version --bump > $ROOT/version
+                convco -C $ROOT version --bump | tr -d [:space:] > $ROOT/version
                 convco -C $ROOT changelog --unreleased v$(cat $ROOT/version) > $ROOT/CHANGELOG.md
                 git add .
                 git commit -m "chore(release): $(cat $ROOT/version)"

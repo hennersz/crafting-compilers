@@ -38,11 +38,6 @@ jobs:
         purge-created: 0
         # except the version with the `primary-key`, if it exists
         purge-primary-key: never
-    - run: |
-        echo "-$(git rev-parse --short HEAD)" >> version
-        git add .
-        git -c user.name="nix" -c user.email="nix@example.com" commit -m "fudge version"
-
     - run: nix -L build .
     - name: Check klox
       run: |
