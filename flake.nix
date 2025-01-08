@@ -4,11 +4,12 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    devenv.url = "github:cachix/devenv";
+#    devenv.url = "github:cachix/devenv";
+    std-dev-env.url = "github:hennersz/std-dev-env";
     build-gradle-application.url = "github:raphiz/buildGradleApplication";
   };
 
-  outputs = { self, nixpkgs, flake-utils, devenv, build-gradle-application, ... } @ inputs:
+  outputs = { self, nixpkgs, flake-utils, std-dev-env, build-gradle-application, ... } @ inputs:
     flake-utils.lib.eachDefaultSystem (system:
       let
         javaVersion = 21;
@@ -48,21 +49,37 @@
       in
       with pkgs;
       {
-        devShells.default = devenv.lib.mkShell {
+        devShells.default = std-dev-env.lib.base {
           inherit pkgs inputs;
-          modules = [
-            ({pkgs, ...}: {
-              env.JAVA_HOME = "${jdk}";
-              packages = [ kotlin jdk coreutils gradle updateVerificationMetadata self.packages."${system}".klox test-klox bats generate];
-              enterShell = ''
-                rm -rf $DEVENV_ROOT/.lib
-                mkdir -p $DEVENV_ROOT/.lib
-                ln -sf ${jdk} $DEVENV_ROOT/.lib/jdk
-                export ROOT=$DEVENV_ROOT
-                export OUT_DIR=$ROOT/tests/reports
-              '';
-            })
-          ];
+          env.JAVA_HOME = "${jdk}";
+          packages = [ kotlin jdk coreutils gradle updateVerificationMetadata self.packages."${system}".klox test-klox bats generate git];
+          scripts = {
+            tests.exec = ''
+                unit-tests
+                integration-tests
+            '';
+
+            unit-tests.exec = ''
+                gradle -p $ROOT/klox test
+            '';
+
+            integration-tests.exec = ''
+                mkdir -p $ROOT/tests/reports
+                test-klox
+            '';
+
+            lint.exec = ''
+                gradle -p $ROOT/klox ktlintCheck
+            '';
+          };
+          enterShell = ''
+            rm -rf $DEVENV_ROOT/.lib
+            mkdir -p $DEVENV_ROOT/.lib
+            ln -sf ${jdk} $DEVENV_ROOT/.lib/jdk
+            export ROOT=$DEVENV_ROOT
+            export OUT_DIR=$ROOT/tests/reports
+            git submodule update --init
+          '';
         };
 
         packages = rec { 
