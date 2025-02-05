@@ -7,7 +7,7 @@ plugins {
     application
     jacoco
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
-    id("org.graalvm.buildtools.native") version "0.10.4"
+    id("org.graalvm.buildtools.native") version "0.10.5"
 }
 
 group = "net.morti"
