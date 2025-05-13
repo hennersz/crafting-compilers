@@ -3,7 +3,7 @@ import java.io.PrintWriter
 import java.nio.file.Files
 
 plugins {
-    kotlin("jvm") version "2.1.20"
+    kotlin("jvm") version "2.1.21"
     application
     jacoco
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
