@@ -21,7 +21,7 @@ jobs:
           persist-credentials: false
           fetch-depth: "0"
           fetch-tags: "true"
-      - uses: nixbuild/nix-quick-install-action@v32
+      - uses: nixbuild/nix-quick-install-action@v33
       - name: Restore and save Nix store
         uses: nix-community/cache-nix-action@v6
         with:
