@@ -6,11 +6,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1740030529,
-        "narHash": "sha256-7K1TdRTaxGHj/rIkLLs5bu7CCemdddki24MVaiK5WbU=",
+        "lastModified": 1757137471,
+        "narHash": "sha256-ejcdYtANfcY8ylLFEMcwSKxdJV3/gvjOzgAaZD/jq3Y=",
         "owner": "raphiz",
         "repo": "buildGradleApplication",
-        "rev": "d004d73743b4974c932505c0009341c647844341",
+        "rev": "e3f73462e879a3df0c56846e3d00a25d5157b36f",
         "type": "github"
       },
       "original": {
@@ -337,11 +337,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1746576598,
-        "narHash": "sha256-FshoQvr6Aor5SnORVvh/ZdJ1Sa2U4ZrIMwKBX5k2wu0=",
+        "lastModified": 1756911493,
+        "narHash": "sha256-6n/n1GZQ/vi+LhFXMSyoseKdNfc2QQaSBXJdgamrbkE=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b3582c75c7f21ce0b429898980eddbbf05c68e55",
+        "rev": "c6a788f552b7b7af703b1a29802a7233c0067908",
         "type": "github"
       },
       "original": {
