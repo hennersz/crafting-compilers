@@ -6,7 +6,7 @@ plugins {
     kotlin("jvm") version "2.2.21"
     application
     jacoco
-    id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
     id("org.graalvm.buildtools.native") version "0.11.3"
 }
 
