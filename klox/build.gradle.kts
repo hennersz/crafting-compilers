@@ -19,9 +19,9 @@ sourceSets.main {
 
 dependencies {
     testImplementation(kotlin("test:2.1.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.2")
     testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.1")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.2")
 }
 
 tasks.register<Generate>("generate") {
