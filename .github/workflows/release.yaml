@@ -23,7 +23,7 @@ jobs:
           fetch-tags: "true"
       - uses: nixbuild/nix-quick-install-action@v33
       - name: Restore and save Nix store
-        uses: nix-community/cache-nix-action@v6
+        uses: nix-community/cache-nix-action@v7
         with:
           primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock', 'klox/gradle/wrapper/verification-metadata.xml') }}
           purge: true
