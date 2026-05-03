@@ -12,7 +12,6 @@
   outputs = { self, nixpkgs, flake-utils, std-dev-env, build-gradle-application, ... } @ inputs:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        javaVersion = 21;
         version = nixpkgs.lib.strings.trim (builtins.readFile ./version);
         overlays = [
           (final: prev: rec {
