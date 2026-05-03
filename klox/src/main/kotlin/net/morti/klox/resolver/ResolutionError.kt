@@ -3,7 +3,10 @@ package net.morti.klox.resolver
 import net.morti.klox.parser.ParseError
 import net.morti.klox.scanner.Token
 
-class ResolutionError(val token: Token, override val message: String) : Exception(message) {
+class ResolutionError(
+    val token: Token,
+    override val message: String,
+) : Exception(message) {
     override fun equals(other: Any?): Boolean {
         if (other is ParseError) {
             return this.token == other.token && this.message == other.message
@@ -18,7 +21,5 @@ class ResolutionError(val token: Token, override val message: String) : Exceptio
         return result
     }
 
-    override fun toString(): String {
-        return "Token: $token, Message: $message"
-    }
+    override fun toString(): String = "Token: $token, Message: $message"
 }

@@ -2,7 +2,9 @@ package net.morti.klox.scanner
 
 import net.morti.klox.scanner.TokenType.*
 
-class Scanner(private val source: String) {
+class Scanner(
+    private val source: String,
+) {
     private val tokens: MutableList<Token> = ArrayList()
     private val scanErrors: MutableList<ScanError> = ArrayList()
     private var start = 0
@@ -41,9 +43,7 @@ class Scanner(private val source: String) {
         return Pair(tokens, scanErrors)
     }
 
-    private fun isAtEnd(): Boolean {
-        return current >= source.length
-    }
+    private fun isAtEnd(): Boolean = current >= source.length
 
     private fun scanToken() {
         when (val c = advance()) {
@@ -88,9 +88,7 @@ class Scanner(private val source: String) {
         }
     }
 
-    private fun advance(): Char {
-        return source[current++]
-    }
+    private fun advance(): Char = source[current++]
 
     private fun addToken(type: TokenType) {
         addToken(type, null)
@@ -141,9 +139,7 @@ class Scanner(private val source: String) {
         addToken(STRING, value)
     }
 
-    private fun isDigit(c: Char): Boolean {
-        return c in '0'..'9'
-    }
+    private fun isDigit(c: Char): Boolean = c in '0'..'9'
 
     private fun number() {
         while (isDigit(peek())) advance()
@@ -169,15 +165,12 @@ class Scanner(private val source: String) {
         addToken(keywords.getOrDefault(text, IDENTIFIER))
     }
 
-    private fun isAlpha(c: Char): Boolean {
-        return (c in 'a'..'z') ||
+    private fun isAlpha(c: Char): Boolean =
+        (c in 'a'..'z') ||
             (c in 'A'..'Z') ||
             c == '_'
-    }
 
-    private fun isAlphaNumeric(c: Char): Boolean {
-        return isAlpha(c) || isDigit(c)
-    }
+    private fun isAlphaNumeric(c: Char): Boolean = isAlpha(c) || isDigit(c)
 
     private fun blockComment() {
         var nesting = 1
