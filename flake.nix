@@ -17,7 +17,7 @@
           (final: prev: rec {
             jdk = prev.graalvmPackages.graalvm-ce;
             java = jdk;
-            gradle = prev.gradle.override { java = jdk; };
+            gradle = prev.gradle_9.override { java = jdk; };
             kotlin = prev.kotlin.override { jre = jdk; };
           })
           build-gradle-application.overlays.default
