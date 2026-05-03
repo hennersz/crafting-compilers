@@ -16,7 +16,8 @@ import kotlin.test.assertEquals
 class InterpreterTest {
     @TestFactory
     fun testPrograms(): Stream<DynamicTest> =
-        Stream.of(
+        Stream
+            .of(
             Triple(
                 "Test Print",
                 arrayListOf(
@@ -371,7 +372,8 @@ class InterpreterTest {
                 ),
                 "2.0",
             ),
-        ).map { (name, statements, expected) ->
+            )
+            .map { (name, statements, expected) ->
             dynamicTest(name) {
                 val interpreter = Interpreter()
                 val resolver = Resolver(interpreter)
@@ -388,7 +390,8 @@ class InterpreterTest {
 
     @TestFactory
     fun testErrors(): Stream<DynamicTest> =
-        Stream.of(
+        Stream
+            .of(
             Triple(
                 "Test plus bad operands",
                 arrayListOf(
@@ -427,7 +430,8 @@ class InterpreterTest {
                 ),
                 RuntimeError(Token(TokenType.MINUS, "-", "", 1), "Operands must be numbers"),
             ),
-        ).map { (name, statements, expectedError) ->
+            )
+            .map { (name, statements, expectedError) ->
             dynamicTest(name) {
                 val actualError =
                     assertThrows<RuntimeError> {
