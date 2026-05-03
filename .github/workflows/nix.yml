@@ -38,7 +38,6 @@ jobs:
         purge-created: 0
         # except the version with the `primary-key`, if it exists
         purge-primary-key: never
-    - run: nix flake update nixpkgs
     - run: nix -L build .
     - name: Check klox
       run: |
