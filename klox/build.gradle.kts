@@ -167,9 +167,7 @@ ${
 class $className(
 ${fields.joinToString("\n") { field -> "val ${field.first}: ${field.second},".prependIndent("    ") }}
 ) : $baseName() {
-    override fun <R> accept(visitor: Visitor<R>): R? {
-        return visitor.visit${className}$baseName(this)
-    }
+    override fun <R> accept(visitor: Visitor<R>): R? = visitor.visit${className}$baseName(this)
 
     override fun equals(other: Any?): Boolean {
         if (other is $className) {

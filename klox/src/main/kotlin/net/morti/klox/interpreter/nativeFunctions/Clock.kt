@@ -7,15 +7,9 @@ class Clock : LoxCallable {
     override fun call(
         interpreter: Interpreter,
         arguments: List<Any?>,
-    ): Any {
-        return System.currentTimeMillis().toDouble() / 1000.0
-    }
+    ): Any = System.currentTimeMillis().toDouble() / 1000.0
 
-    override fun arity(): Int {
-        return 0
-    }
+    override fun arity(): Int = 0
 
-    override fun toString(): String {
-        return "<native fn - clock>"
-    }
+    override fun toString(): String = "<native fn - clock>"
 }

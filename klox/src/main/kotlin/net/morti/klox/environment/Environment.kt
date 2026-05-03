@@ -3,7 +3,9 @@ package net.morti.klox.environment
 import net.morti.klox.interpreter.RuntimeError
 import net.morti.klox.scanner.Token
 
-class Environment(private val enclosing: Environment?) {
+class Environment(
+    private val enclosing: Environment?,
+) {
     constructor() : this(null)
 
     private val values = HashMap<String, Any?>()
@@ -47,9 +49,7 @@ class Environment(private val enclosing: Environment?) {
     fun getAt(
         distance: Int,
         name: String,
-    ): Any? {
-        return ancestor(distance)?.values?.get(name)
-    }
+    ): Any? = ancestor(distance)?.values?.get(name)
 
     private fun ancestor(distance: Int): Environment? {
         var environment: Environment? = this
