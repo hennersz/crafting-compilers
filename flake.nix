@@ -16,7 +16,7 @@
         version = nixpkgs.lib.strings.trim (builtins.readFile ./version);
         overlays = [
           (final: prev: rec {
-            jdk = prev.graalvm-ce;
+            jdk = prev.graalvmPackages.graalvm-ce;
             java = jdk;
             gradle = prev.gradle.override { java = jdk; };
             kotlin = prev.kotlin.override { jre = jdk; };
