@@ -47,7 +47,7 @@
       in
       with pkgs;
       {
-        devShells.default = std-dev-env.lib.base {
+        devShells.default = std-dev-env.lib.base.devenv {
           inherit pkgs inputs;
           env.JAVA_HOME = "${jdk}";
           packages = [ kotlin jdk coreutils gradle updateVerificationMetadata self.packages."${system}".klox test-klox bats generate git convco ];
