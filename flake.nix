@@ -58,33 +58,42 @@
             '';
 
             unit-tests.exec = ''
-                gradle -p $ROOT/klox test
+                ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
+                gradle -p "$ROOT_DIR/klox" test
             '';
 
             integration-tests.exec = ''
-                mkdir -p $ROOT/tests/reports
+                ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
+                REPORT_DIR="''${OUT_DIR:-$ROOT_DIR/tests/reports}"
+                mkdir -p "$REPORT_DIR"
+                export ROOT="$ROOT_DIR"
+                export OUT_DIR="$REPORT_DIR"
                 test-klox
             '';
 
             lint.exec = ''
-                gradle -p $ROOT/klox ktlintCheck
+                ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
+                gradle -p "$ROOT_DIR/klox" ktlintCheck
             '';
 
             release.exec = ''
-                convco -C $ROOT version --bump | tr -d [:space:] > $ROOT/version
-                convco -C $ROOT changelog --unreleased v$(cat $ROOT/version) > $ROOT/CHANGELOG.md
-                git add .
-                git commit -m "chore(release): $(cat $ROOT/version)"
-                git tag v$(cat $ROOT/version) -m "chore(release): $(cat $ROOT/version)"
+                ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
+                convco -C "$ROOT_DIR" version --bump | tr -d [:space:] > "$ROOT_DIR/version"
+                convco -C "$ROOT_DIR" changelog --unreleased v$(cat "$ROOT_DIR/version") > "$ROOT_DIR/CHANGELOG.md"
+                git -C "$ROOT_DIR" add .
+                git -C "$ROOT_DIR" commit -m "chore(release): $(cat "$ROOT_DIR/version")"
+                git -C "$ROOT_DIR" tag v$(cat "$ROOT_DIR/version") -m "chore(release): $(cat "$ROOT_DIR/version")"
             '';
           };
           enterShell = ''
-            rm -rf $DEVENV_ROOT/.lib
-            mkdir -p $DEVENV_ROOT/.lib
-            ln -sf ${jdk} $DEVENV_ROOT/.lib/jdk
-            export ROOT=$DEVENV_ROOT
-            export OUT_DIR=$ROOT/tests/reports
-            git submodule update --init
+            ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
+            rm -rf "$ROOT_DIR/.lib"
+            mkdir -p "$ROOT_DIR/.lib"
+            ln -sf ${jdk} "$ROOT_DIR/.lib/jdk"
+            export ROOT="$ROOT_DIR"
+            export OUT_DIR="''${OUT_DIR:-$ROOT_DIR/tests/reports}"
+            mkdir -p "$OUT_DIR"
+            git -C "$ROOT_DIR" submodule update --init
           '';
         };
 
@@ -107,3 +116,4 @@
       }
     );
 }
+
