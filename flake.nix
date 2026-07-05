@@ -58,13 +58,13 @@
             '';
 
             unit-tests.exec = ''
-                ROOT_DIR="\${PROJECT_ROOT:-$PWD}"
+                ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
                 gradle -p "$ROOT_DIR/klox" test
             '';
 
             integration-tests.exec = ''
-                ROOT_DIR="\${PROJECT_ROOT:-$PWD}"
-                REPORT_DIR="\${OUT_DIR:-$ROOT_DIR/tests/reports}"
+                ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
+                REPORT_DIR="''${OUT_DIR:-$ROOT_DIR/tests/reports}"
                 mkdir -p "$REPORT_DIR"
                 export ROOT="$ROOT_DIR"
                 export OUT_DIR="$REPORT_DIR"
@@ -72,12 +72,12 @@
             '';
 
             lint.exec = ''
-                ROOT_DIR="\${PROJECT_ROOT:-$PWD}"
+                ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
                 gradle -p "$ROOT_DIR/klox" ktlintCheck
             '';
 
             release.exec = ''
-                ROOT_DIR="\${PROJECT_ROOT:-$PWD}"
+                ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
                 convco -C "$ROOT_DIR" version --bump | tr -d [:space:] > "$ROOT_DIR/version"
                 convco -C "$ROOT_DIR" changelog --unreleased v$(cat "$ROOT_DIR/version") > "$ROOT_DIR/CHANGELOG.md"
                 git -C "$ROOT_DIR" add .
@@ -86,12 +86,12 @@
             '';
           };
           enterShell = ''
-            ROOT_DIR="\${PROJECT_ROOT:-$PWD}"
+            ROOT_DIR="''${PROJECT_ROOT:-$PWD}"
             rm -rf "$ROOT_DIR/.lib"
             mkdir -p "$ROOT_DIR/.lib"
             ln -sf ${jdk} "$ROOT_DIR/.lib/jdk"
             export ROOT="$ROOT_DIR"
-            export OUT_DIR="\${OUT_DIR:-$ROOT_DIR/tests/reports}"
+            export OUT_DIR="''${OUT_DIR:-$ROOT_DIR/tests/reports}"
             mkdir -p "$OUT_DIR"
             git -C "$ROOT_DIR" submodule update --init
           '';
@@ -116,3 +116,4 @@
       }
     );
 }
+
