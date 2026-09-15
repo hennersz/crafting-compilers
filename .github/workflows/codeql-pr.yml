@@ -47,7 +47,7 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v6
       with:
-        java-version: '25'
+        java-version: '25.0.4+101.0.LTS'
         distribution: 'temurin'
 
     - uses: dorny/paths-filter@v4
