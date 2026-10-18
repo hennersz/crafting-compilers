@@ -79,11 +79,11 @@
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1731533236,
-        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "lastModified": 1791914995,
+        "narHash": "sha256-Zf/xfQEAasnwnmEfHqW/4hjDE/s44yn2hD4RuVIZRjA=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "rev": "b7a79d3fea1e214f6d668d521cecec0c01e26544",
         "type": "github"
       },
       "original": {
@@ -190,11 +190,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1791487292,
-        "narHash": "sha256-tqM7xDEsaeK1p6VvRygeZ9LkQRpUUkbRT02BHv6hnTM=",
+        "lastModified": 1792116957,
+        "narHash": "sha256-EjZqHKObBfIOeHZnMRVV87HB3pPq/WBkmRJWyFxmZu8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "8edc0c72e3a38faf5434e40d1f19431125fe4b30",
+        "rev": "f20cd90e28fe0403873f473b29e42662cd86e8c4",
         "type": "github"
       },
       "original": {
@@ -262,11 +262,11 @@
         "poetry2nix": "poetry2nix"
       },
       "locked": {
-        "lastModified": 1791507624,
-        "narHash": "sha256-cfywqPrFc1GEL+5r+uu5mcYTMh1yEwjZCnv6CkiNOQk=",
+        "lastModified": 1792216637,
+        "narHash": "sha256-wyfPEvNlQIwlDprIGRTEG2qZG4VbRFDhrAxZ9ESqL1g=",
         "owner": "hennersz",
         "repo": "std-dev-env",
-        "rev": "2d3b0213c9f3d0285431f6faf434b9b04295cd69",
+        "rev": "6894933fc12ec353c4f6819eea06bab68c0bfc26",
         "type": "github"
       },
       "original": {
