@@ -19,6 +19,11 @@
             java = jdk;
             gradle = prev.gradle_9.override { java = jdk; };
             kotlin = prev.kotlin.override { jre = jdk; };
+            convco = prev.convco.overrideAttrs (old: {
+              preBuild = (old.preBuild or "") + ''
+                export LIBGIT2_NO_VENDOR=0
+              '';
+            });
           })
           build-gradle-application.overlays.default
         ];
@@ -116,4 +121,3 @@
       }
     );
 }
-
